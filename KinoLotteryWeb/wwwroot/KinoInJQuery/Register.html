@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <script
+    src="https://code.jquery.com/jquery-3.6.1.js"
+    integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI="
+    crossorigin="anonymous">
+</script>
+</head>
+<body>
+    <div id="container">
+        <div class="inputContainer">
+            <label for="userNameInput">User Name: &nbsp; </label>
+            <input type="text" id="userNameInput">
+        </div>
+        <div class="inputContainer">
+            <label for="passwordInput">Password: &nbsp; </label>
+            <input type="password" id="passwordInput">
+        </div>
+        <div class="inputContainer">
+            <label for="repeatPasswordInput">Repeat Password: &nbsp; </label>
+            <input type="password" id="repeatPasswordInput">
+        </div>
+        <div class="inputContainer">
+            <label for="dob">Date of Birth: &nbsp; </label>
+            <input type="date" id="dob">
+        </div>
+        <hr />
+        <button id="submitRegister">Submit Register</button>
+    </div>
+
+    <script>
+        $(document).ready( function () {
+            $('#submitRegister').click(async function () {
+                const registerDto = {
+                    userName : $('#userNameInput').val(),
+                    password : $('#passwordInput').val(),
+                    repeatedPassword : $('#repeatedPasswordInput').val(),
+                    dob: $('#dob').val()
+                }
+                const response = await fetch('/api/account/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(registerDto)
+                });
+
+                if (response.status < 300) {
+                    window.location = "/KinoInJQuery/Login.html";
+                }
+            })
+        })
+    </script>
+</body>
+</html>
+
+<style>
+    #container{
+        background-color: beige;
+        width: 500px;
+        position: absolute;
+        left: 0;
+        right: 0;
+        margin: auto;
+        height: 1000px;
+        text-align: center;
+        font-family:Verdana, Geneva, Tahoma, sans-serif ;
+    }
+
+    .inputContainer{
+        margin: auto;
+        padding-top: 10px ;
+        padding-bottom: 10px ;
+    }
+
+    #submitRegister{
+        margin: auto;
+        margin-top: 20px;
+    }
+</style>
