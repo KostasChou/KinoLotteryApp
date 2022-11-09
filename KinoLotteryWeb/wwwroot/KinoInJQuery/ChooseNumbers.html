@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Numbers</title>
+        <script
+        src="https://code.jquery.com/jquery-3.6.1.js"
+        integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI="
+        crossorigin="anonymous">
+        </script>
+        <script>
+            
+        </script>
+</head>
+
+<body>
+    <div id="includedContent"></div>
+    <div id="container">
+        <div id="numOFNumsContainer">
+            <h2>How Many Numbers Would You Like To Play?</h2>
+        </div>
+        <hr>
+        <div id="numContainer">
+            
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(async function () {
+            $(function(){
+                $("#includedContent").load("navBar.html");
+            });
+
+            const responce = await fetch('/api/controllername/action');
+            const json = await responce.json();
+            
+            
+            var selectedNumbers = []
+            var numOfNums = 0;
+
+            for (var i = 3; i <= 12; i ++){
+                $('#numOFNumsContainer').append(`<button class="numOfNumsButtons" id="numBtn${i}"> ${i} </button>`)
+            }
+
+            for (var i = 1; i <= 80; i++){
+                $('#numContainer').append(`<button class="numButtons" id="btn${i}">  ${i} </button>`)
+            }
+            
+            function clearAllNumbers(){
+                selectedNumbers = [];
+                for(var i = 1; i <= 80; i++){
+                    $('#btn'+ i).removeClass('selectedNumButton');
+                }
+            }
+
+            $('.numOfNumsButtons').click(function(){
+                clearAllNumbers();
+                for (var i = 3; i <= 12; i++){
+                    
+                    $('#numBtn' + i).removeClass('selectedNumOfNumsButton');
+
+                    if ($(this).attr('id') == 'numBtn' + i){
+                        if(numOfNums == i){
+                            numOfNums = 0;
+                            $('#numBtn' + i).removeClass('selectedNumOfNumsButton');
+                        }
+                        else{
+                            numOfNums = i;
+                            $('#numBtn' + i).addClass('selectedNumOfNumsButton');
+                        }
+                    }
+                }
+            })
+
+            $('.numButtons').click(function(){
+                if(numOfNums == 0){
+                    alert('You Need To Choose How Many Numbers To Play!');
+                    return;
+                }
+
+                for (var i = 1; i <= 80; i++){
+                    if($(this).attr('id') == `btn${i}`){
+                        if(selectedNumbers.length < numOfNums && selectedNumbers.filter(function(item){return item == i}).length == 0){
+                            selectedNumbers.push(i);
+                            $('#btn' + i).addClass('selectedNumButton');
+                        }
+                        else if(selectedNumbers.length <= numOfNums && selectedNumbers.filter(function(item){return item == i}).length > 0){
+                            selectedNumbers.splice(selectedNumbers.indexOf(i), 1);
+                            $('#btn' + i).removeClass('selectedNumButton');
+                        }
+                        else{
+                            alert(`You have already chosen ${numOfNums} Numbers!`);
+                        }
+                        break;
+                    }
+                }
+                
+            });
+        });
+    </script>
+</body>
+</html>
+
+<style>
+    #container{
+        background-color: beige;
+        width: 500px;
+        position: absolute;
+        left: 0;
+        right: 0;
+        margin: auto;
+        height: 1000px;
+        text-align: center;
+        font-family:Verdana, Geneva, Tahoma, sans-serif ;
+    }
+
+    .numOfNumsButtons{
+        margin: 2px;
+        border-radius: 45%;
+        width: 45px;
+        height: 45px;
+        font-size: 1.3em;
+    }
+
+    .numButtons{
+        margin: 2px;
+        border-radius: 45%;
+        width: 45px;
+        height: 45px;
+        font-size: 1.3em;
+    }
+
+    .selectedNumOfNumsButton{
+        background-color:coral;
+    }
+    .selectedNumButton{
+        background-color: aquamarine;
+    }
+</style>

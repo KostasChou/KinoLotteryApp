@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lottery</title>
+    <script
+        src="https://code.jquery.com/jquery-3.6.1.js"
+        integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI="
+        crossorigin="anonymous">
+
+        
+    </script>
+</head>
+<body>
+    <div id="includedContent"></div>
+    <div id="numContainer">
+        <h4 id="clock"></h4>
+        <hr>
+    </div>
+    
+    
+    <script>
+        $(document).ready(function () {
+            $(function(){
+                $("#includedContent").load("navBar.html");
+            });
+
+            function clock(){
+                const date = new Date();
+                var mins = date.getMinutes();
+                $('#clock').text(date.toLocaleTimeString());
+                if(mins % 5 == 0 && !lotteryStarted){
+                    lotteryStarted = true;
+                    winningNumbers = [];
+                    $('.numButtons').removeClass('tempButtonColor');
+                    $('.numButtons').removeClass('winningNumber');
+                    lotteryInterval = setInterval(randomNumberGeneretor, 1000);
+                }
+                else if (mins % 5 != 0 && lotteryStarted){
+                    setTimeout(() => {lotteryStarted = false;}, 60000);
+                }
+            }
+
+            var winningNumbers = [];
+            var tempNumber = 0;
+            var smallCount = 0;
+            var bigCount = 0;
+            var lotteryStarted = false;
+            var lotteryInterval;
+            
+            for (var i = 1; i <= 80; i++){
+                $('#numContainer').append(`<button class="numButtons" id="btn${i}">  ${i} </button>`)
+            }
+
+            clockInterval = setInterval(clock, 1000);
+
+            function randomNumberGeneretor(){
+                smallCount++;
+                bigCount++;
+                if(bigCount > 79){
+                    clearInterval(lotteryInterval);
+                    smallCount = 0;
+                    bigCount = 0;
+                }
+                else{
+                    do{
+                        var x = Math.floor((Math.random() * 80) + 1);
+                    } while(x == tempNumber || winningNumbers.filter(function(item) {return item == x}).length > 0);
+                    tempNumber = x;
+
+                    if(smallCount % 3 == 0){                //Color addition to a number that is finaliazed as a winning one
+                        $('#btn' + x).addClass('tempButtonColor');
+                        setTimeout(() => { $('#btn' + x).addClass('winningNumber'); }, 1000);
+                        winningNumbers.push(x);
+                    }
+                    else if(smallCount % 4 == 0){           //No color added, just leave some time between a winning number and the first temporary number of the next winning one
+                        smallCount = 0;
+                        setTimeout(() => { $('#btn' + x).addClass('numButtons')}, 1000);
+                    }
+                    else{                                   //Color addition to a number that is temporarily highlighted
+                        $('#btn' + x).addClass('tempButtonColor');
+                        setTimeout(() => { $('#btn' + x).removeClass('tempButtonColor'); }, 1000);
+                    }
+                }
+            };
+        });
+            
+    </script>
+</body>
+</html>
+
+<style>
+    #numContainer{
+        background-color: beige;
+        width: 500px;
+        position: absolute;
+        left: 0;
+        right: 0;
+        margin: auto;
+        height: 1000px;
+        text-align: center;
+        font-family:Verdana, Geneva, Tahoma, sans-serif ;
+    }
+    .numButtons{
+        margin: 2px;
+        border-radius: 45%;
+        width: 45px;
+        height: 45px;
+        font-size: 1.3em;
+    }
+    .tempButtonColor{
+        background-color: rgb(138, 255, 255);
+    }
+    .winningNumber{
+        background-color: rgb(0, 4, 255);
+        color: white;
+    }
+
+</style>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In</title>
+    <script
+        src="https://code.jquery.com/jquery-3.6.1.js"
+        integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI="
+        crossorigin="anonymous">
+        
+    </script>
+</head>
+<body>
+    <div id="includedContent"></div>
+    <div id="container">
+        <div class="inputContainer">
+            <label for="userNameInput">User Name: &nbsp; </label>
+            <input type="text" id="userNameInput">
+        </div>
+
+        <div class="inputContainer">
+            <label for="passwordInput">Password: &nbsp; </label>
+            <input type="password" id="passwordInput">
+        </div>
+        <hr />
+        <button id="submitLogin">Submit Login</button>
+    </div>
+
+    <script>
+        $(document).ready( function () {
+            $(function (){
+                $("#includedContent").load("navBar.html");
+            });
+
+            $('#submitLogin').click(async function () {
+                const loginDto = {
+                    userName : $('#userNameInput').val(),
+                    password : $('#passwordInput').val()
+                }
+                const response = await fetch('/api/account/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+
+                    body: JSON.stringify(loginDto)
+                });
+
+                if (response.status < 300) {
+                    window.location = "/KinoInJQuery/Lottery.html";
+                }
+            })
+        })
+    </script>
+</body>
+</html>
+
+<style>
+    #container{
+        background-color: beige;
+        width: 500px;
+        position: absolute;
+        left: 0;
+        right: 0;
+        margin: auto;
+        height: 1000px;
+        text-align: center;
+        font-family:Verdana, Geneva, Tahoma, sans-serif ;
+    }
+
+    .inputContainer{
+        margin: auto;
+        padding-top: 10px ;
+        padding-bottom: 10px ;
+    }
+
+    #submitLogin{
+        margin: auto;
+        margin-top: 20px;
+    }
+</style>

@@ -47,6 +47,7 @@ namespace KinoLotteryWeb.Controllers
             });
 
             return Ok();
+
         }
 
         [HttpPost("register")]
