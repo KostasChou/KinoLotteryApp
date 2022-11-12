@@ -5,6 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\KinoInJQuery\ChooseNumbers.html" />
+    <None Include="wwwroot\KinoInJQuery\Images\kindpng_1114679.png" />
+    <None Include="wwwroot\KinoInJQuery\Lottery.html" />
+    <None Include="wwwroot\KinoInJQuery\navBar.html" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.30">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -13,10 +20,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\KinoLotteryData\KinoLotteryData.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="wwwroot\" />
   </ItemGroup>
 
 

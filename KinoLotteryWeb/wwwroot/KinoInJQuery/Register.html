@@ -5,29 +5,37 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-    <script
-    src="https://code.jquery.com/jquery-3.6.1.js"
-    integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI="
-    crossorigin="anonymous">
-</script>
+    <link rel="stylesheet" href="GenericCss/GenericCss.css">
+    <script src="https://code.jquery.com/jquery-3.6.1.js"
+            integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI="
+            crossorigin="anonymous">
+    </script>
 </head>
 <body>
     <div id="container">
         <div class="inputContainer">
             <label for="userNameInput">User Name: &nbsp; </label>
             <input type="text" id="userNameInput">
+            <p id="userNameVal1" class="validations1">User Name must be longer than 3 characters.</p>
         </div>
         <div class="inputContainer">
             <label for="passwordInput">Password: &nbsp; </label>
             <input type="password" id="passwordInput">
+            <p id="passwordVal1" class="validations1">Password must be longer than 3 characters.</p>
+            <p id="passwordVal2" class="validations1">Passwords must be the same.</p>
         </div>
         <div class="inputContainer">
             <label for="repeatPasswordInput">Repeat Password: &nbsp; </label>
             <input type="password" id="repeatPasswordInput">
+            <p id="repeatPasswordVal1" class="validations1">Password must be longer than 3 characters.</p>
+            <p id="repeatPasswordVal2" class="validations1">Passwords must be the same.</p>
         </div>
         <div class="inputContainer">
             <label for="dob">Date of Birth: &nbsp; </label>
-            <input type="date" id="dob">
+            <input type="date" id="dob" >
+            <p id="dobVal1" class="validations1">Date of Birth is required.</p>
+            <p id="dobVal2" class="validations1">You must be older than 18 years old.</p>
+            <p id="dobVal3" class="validations1">Please enter a valid age.</p>
         </div>
         <hr />
         <button id="submitRegister">Submit Register</button>
@@ -36,22 +44,93 @@
     <script>
         $(document).ready( function () {
             $('#submitRegister').click(async function () {
-                const registerDto = {
-                    userName : $('#userNameInput').val(),
-                    password : $('#passwordInput').val(),
-                    repeatedPassword : $('#repeatedPasswordInput').val(),
-                    dob: $('#dob').val()
+                debugger;
+                const userNameVar = $('#userNameInput').val();
+                const passwordVar1 = $('#passwordInput').val();
+                const passwordVar2 = $('#repeatPasswordInput').val();
+                const dobVarStr = $('#dob').val();
+                //Ayto prepei na ginei
+                let errors = [];
+
+                if (userNameVar.length <= 3) {
+                    $('#userNameVal1').show();
+                    return;
                 }
+                else
+                    $('#userNameVal1').hide();
+
+
+                if (passwordVar1.length <= 3) {
+                    $('#passwordVal1').show();
+                    return;
+                }
+                else
+                    $('#passwordVal2').hide();
+
+                if (passwordVar2.length <= 3) {
+                    $('#repeatPasswordVal1').show();
+                    return;
+                }
+                else
+                    $('#repeatPasswordVal1').hide();
+
+                if (passwordVar1 != passwordVar2) {
+                    $('#passwordVal2').show()
+                    $('#repeatPasswordVal2').show();
+                    return;
+                }
+                else {
+                    $('#passwordVal2').hide()
+                    $('#repeatPasswordVal2').hide();
+                }
+
+                if (dobVarStr == null || dobVarStr == '') {
+                    $('#dobVal1').show();
+                    return;
+                }
+                else
+                    $('#dobval1').hide();
+
+                const dobVarDate = new Date(dobVarStr);
+                if (dobVarDate < new Date('1900-01-01')) {
+                    $('#dobVal3').show();
+                    return;
+                }
+                else
+                    $('#dobVal3').hide();
+
+                //To be Implemented
+
+                //if (dobVarDate + < new Date().getDate) {
+                //    $('#dobVal2').show();
+                //    return;
+                //}
+                //else
+                //    $('#dobVal2').hide();
+                
+
+                const registerDto = {
+                    userName : userNameVar,
+                    password : passwordVar1,
+                    repeatpassword : passwordVar2,
+                    dob: dobVarStr
+                }
+                console.log(JSON.stringify(registerDto));
                 const response = await fetch('/api/account/register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
+
                     body: JSON.stringify(registerDto)
                 });
 
-                if (response.status < 300) {
+                if (response.status < 300 || response.status > 400) {
                     window.location = "/KinoInJQuery/Login.html";
+                }
+                else if (response.status == 400) {
+                    $('#passwordVal2').show()
+                    $('#repeatPasswordVal2').show();
                 }
             })
         })

@@ -5,68 +5,81 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Choose Numbers</title>
-        <script
-        src="https://code.jquery.com/jquery-3.6.1.js"
-        integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI="
-        crossorigin="anonymous">
-        </script>
-        <script>
-            
-        </script>
+    <link rel="stylesheet" href="GenericCss/GenericCss.css">
+    <script src="https://code.jquery.com/jquery-3.6.1.js"
+            integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI="
+            crossorigin="anonymous">
+    </script>
+    <script>
+
+    </script>
 </head>
 
 <body>
     <div id="includedContent"></div>
     <div id="container">
         <div id="numOFNumsContainer">
-            <h2>How Many Numbers Would You Like To Play?</h2>
+            <h3>How Many Numbers Would You Like To Play?</h3>
         </div>
         <hr>
         <div id="numContainer">
-            
+
         </div>
+        <div style="font-size:small; margin-top: 20px;">
+            <label for="numOfLotteries">Number of Lotteries for this ticket (must be between 1 and 100).</label>
+            <input type="number" id="numOfLotteries" min="1" max="100" style="width:40px;" />
+            <p id="numOfLotteriesVal1" class="validations1">Field is mandatory.</p>
+        </div>
+        <div style="font-size:small; margin-top: 20px;">
+            <label for="moneyPerLottery">Money per Lottery (must be a multiple of 1 euro and up to 1000): </label>
+            <input type="number" id="moneyPerLottery" min="1" max="1000" style="width:50px;" />
+            <p id="moneyPerLotteryVal1" class="validations1">Field is mandatory.</p>
+        </div>
+        <div style="width: 50%; display: inline"></div>
+
+        <hr />
+        <button id="submitLogin">Submit Ticket</button>
+
     </div>
 
     <script>
         $(document).ready(async function () {
-            $(function(){
+            //const responce = await fetch('/api/controllername/action');
+            //const json = await responce.json();
+            $(function () {
                 $("#includedContent").load("navBar.html");
             });
 
-            const responce = await fetch('/api/controllername/action');
-            const json = await responce.json();
-            
-            
             var selectedNumbers = []
             var numOfNums = 0;
 
-            for (var i = 3; i <= 12; i ++){
+            for (var i = 3; i <= 12; i++) {
                 $('#numOFNumsContainer').append(`<button class="numOfNumsButtons" id="numBtn${i}"> ${i} </button>`)
             }
 
-            for (var i = 1; i <= 80; i++){
+            for (var i = 1; i <= 80; i++) {
                 $('#numContainer').append(`<button class="numButtons" id="btn${i}">  ${i} </button>`)
             }
-            
-            function clearAllNumbers(){
+
+            function clearAllNumbers() {
                 selectedNumbers = [];
-                for(var i = 1; i <= 80; i++){
-                    $('#btn'+ i).removeClass('selectedNumButton');
+                for (var i = 1; i <= 80; i++) {
+                    $('#btn' + i).removeClass('selectedNumButton');
                 }
             }
 
-            $('.numOfNumsButtons').click(function(){
+            $('.numOfNumsButtons').click(function () {
                 clearAllNumbers();
-                for (var i = 3; i <= 12; i++){
-                    
+                for (var i = 3; i <= 12; i++) {
+
                     $('#numBtn' + i).removeClass('selectedNumOfNumsButton');
 
-                    if ($(this).attr('id') == 'numBtn' + i){
-                        if(numOfNums == i){
+                    if ($(this).attr('id') == 'numBtn' + i) {
+                        if (numOfNums == i) {
                             numOfNums = 0;
                             $('#numBtn' + i).removeClass('selectedNumOfNumsButton');
                         }
-                        else{
+                        else {
                             numOfNums = i;
                             $('#numBtn' + i).addClass('selectedNumOfNumsButton');
                         }
@@ -74,30 +87,49 @@
                 }
             })
 
-            $('.numButtons').click(function(){
-                if(numOfNums == 0){
+            $('.numButtons').click(function () {
+                if (numOfNums == 0) {
                     alert('You Need To Choose How Many Numbers To Play!');
                     return;
                 }
 
-                for (var i = 1; i <= 80; i++){
-                    if($(this).attr('id') == `btn${i}`){
-                        if(selectedNumbers.length < numOfNums && selectedNumbers.filter(function(item){return item == i}).length == 0){
+                for (var i = 1; i <= 80; i++) {
+                    if ($(this).attr('id') == `btn${i}`) {
+                        if (selectedNumbers.length < numOfNums && selectedNumbers.filter(function (item) { return item == i }).length == 0) {
                             selectedNumbers.push(i);
                             $('#btn' + i).addClass('selectedNumButton');
                         }
-                        else if(selectedNumbers.length <= numOfNums && selectedNumbers.filter(function(item){return item == i}).length > 0){
+                        else if (selectedNumbers.length <= numOfNums && selectedNumbers.filter(function (item) { return item == i }).length > 0) {
                             selectedNumbers.splice(selectedNumbers.indexOf(i), 1);
                             $('#btn' + i).removeClass('selectedNumButton');
                         }
-                        else{
+                        else {
                             alert(`You have already chosen ${numOfNums} Numbers!`);
                         }
                         break;
                     }
                 }
-                
             });
+            $('#submitLogin').click(function () {
+                const numOfLotteries = $('#numOfLotteries').val();
+                const moneyPerLotterie = $('#moneyPerLottery').val();
+
+                if (numOfLotteries == null || numOfLotteries == 0) {
+                    $('#numOfLotteriesVal1').show();
+                    return;
+                }
+                else
+                    $('#numOfLotteriesVal1').hide();
+
+
+                if (moneyPerLotterie == null || moneyPerLotterie == 0) {
+                    $('#moneyPerLotteryVal1').show();
+                    return;
+                }
+                else
+                    $('#moneyPerLotteryVal1').hide();
+
+            })
         });
     </script>
 </body>

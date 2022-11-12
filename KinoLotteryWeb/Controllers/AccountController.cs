@@ -26,6 +26,8 @@ namespace KinoLotteryWeb.Controllers
         [HttpPost("login")]
         public async Task<ActionResult> LogIn(LogInDto playerLogin)
         {
+            //εδω θα μπουν κι αλλα validations
+
             var player = await _repo.GetPlayerByUserNameAsync(playerLogin.UserName);
             if (player == null)
                 return BadRequest();
@@ -54,8 +56,13 @@ namespace KinoLotteryWeb.Controllers
 
         public async Task<ActionResult> Register(RegisterDto playerRegister)
         {
+            //εδω θα μπουν κι αλλα validations
             if (playerRegister == null)
                 return NotFound();
+            if (playerRegister.Password != playerRegister.RepeatPassword)
+            {
+                return BadRequest("Passwords must be the same.");
+            }
             Player player = playerRegister;
             byte[] hash;
             byte[] salt;
