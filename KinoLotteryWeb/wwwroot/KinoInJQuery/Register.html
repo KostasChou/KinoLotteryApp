@@ -115,7 +115,6 @@
                     repeatpassword : passwordVar2,
                     dob: dobVarStr
                 }
-                console.log(JSON.stringify(registerDto));
                 const response = await fetch('/api/account/register', {
                     method: 'POST',
                     headers: {

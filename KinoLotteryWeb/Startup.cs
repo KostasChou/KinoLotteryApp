@@ -39,6 +39,7 @@ namespace KinoLotteryWeb
             });
             services.AddControllers();
             services.AddScoped<IPlayerRepository, PlayerRepository>();
+            services.AddScoped<ITicketRepository, TicketRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

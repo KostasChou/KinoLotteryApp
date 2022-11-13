@@ -10,9 +10,6 @@
             integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI="
             crossorigin="anonymous">
     </script>
-    <script>
-
-    </script>
 </head>
 
 <body>
@@ -49,7 +46,11 @@
             $(function () {
                 $("#includedContent").load("navBar.html");
             });
-
+            
+            debugger;
+            console.log($.cookie());
+            
+                            
             var selectedNumbers = []
             var numOfNums = 0;
 
@@ -128,6 +129,14 @@
                 }
                 else
                     $('#moneyPerLotteryVal1').hide();
+
+                const registerDto = {
+                    NumberOfNumbers : numOfNums,
+                    NumbersPlayed : selectedNumbers,
+                    PlayerId : 1, 
+                    NumberOfLotteries : numOfLotteries,
+                    MoneyPlayedPerLottery: moneyPerLotterie
+                }
 
             })
         });

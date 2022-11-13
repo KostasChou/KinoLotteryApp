@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KinoLotteryData.Dtos.TicketDto;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -13,7 +14,7 @@ namespace KinoLotteryData.Data.Entities
         [Required]
         public int NumberOfNumbers { get; set; }
         [Required]
-        public string NumbersPlayer { get; set; }
+        public string NumbersPlayed { get; set; }
 
         [Required]
         [ForeignKey("Player")]
@@ -21,6 +22,26 @@ namespace KinoLotteryData.Data.Entities
         public Player Player { get; set; }
 
         [Required]
+        public int MoneyPlayedPerLottery { get; set; }
+        public int TotalMoney
+        {
+            get { return MoneyPlayedPerLottery * NumberOfLotteries; }
+        }
+
+        [Required]
+        public int NumberOfLotteries { get; set; }
         public ICollection<LotteryTicket> LotteryTickets { get; set; }
+
+
+        public static implicit operator Ticket(CreateTicketDto createTicketDto)
+        {
+            return new Ticket()
+            {
+                NumberOfNumbers = createTicketDto.NumberOfNumbers,
+                NumbersPlayed = createTicketDto.NumbersPlayed,
+                PlayerId = createTicketDto.PlayerId,
+                NumberOfLotteries = createTicketDto.NumberOfLotteries
+            };
+        }
     }
 }
