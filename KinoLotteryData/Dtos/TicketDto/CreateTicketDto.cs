@@ -13,8 +13,6 @@ namespace KinoLotteryData.Dtos.TicketDto
         [Required]
         public string NumbersPlayed { get; set; }
         [Required]
-        public int PlayerId { get; set; }
-        [Required]
         public int NumberOfLotteries { get; set; }
         [Required]
         public int MoneyPlayedPerLottery { get; set; }

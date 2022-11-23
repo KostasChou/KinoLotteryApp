@@ -1,5 +1,7 @@
 using KinoLotteryData.Data;
+using KinoLotteryData.Services;
 using KinoLotteryData.Services.Repositories;
+using KinoLotteryWeb.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -30,7 +32,7 @@ namespace KinoLotteryWeb
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<KinoLotteryContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("HomeConnectionString")));
+                options.UseSqlServer(Configuration.GetConnectionString("WorkConnectionString")));
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(opt => {
                 opt.LoginPath = "/KinoInJQuery/Login.html";
@@ -40,6 +42,8 @@ namespace KinoLotteryWeb
             services.AddControllers();
             services.AddScoped<IPlayerRepository, PlayerRepository>();
             services.AddScoped<ITicketRepository, TicketRepository>();
+
+            services.AddHostedService<LotteryService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

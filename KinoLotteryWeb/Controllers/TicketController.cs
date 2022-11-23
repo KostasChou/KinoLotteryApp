@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace KinoLotteryWeb.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class TicketController : ControllerBase
@@ -18,11 +19,14 @@ namespace KinoLotteryWeb.Controllers
             _repo = repo;
         }
 
-        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateTicket(CreateTicketDto createTicketDto)
         {
-            if(createTicketDto == null)
+            if (User.FindFirst("Id").Value == null)
+                return BadRequest(new ProblemDetails() { Detail = "Please log in to continue." });
+
+
+            if (createTicketDto == null)
             {
                 return NotFound();
             }

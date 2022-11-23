@@ -38,7 +38,8 @@ namespace KinoLotteryWeb.Controllers
             //await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(new ClaimsIdentity));
             var claims = new List<Claim>()
             {
-                 new Claim(ClaimTypes.Name, playerLogin.UserName)
+                 new Claim(ClaimTypes.Name, playerLogin.UserName),
+                 new Claim("Id", player.UserId.ToString())
             };
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 

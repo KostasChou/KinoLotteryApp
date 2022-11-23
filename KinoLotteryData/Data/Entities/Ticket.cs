@@ -39,7 +39,6 @@ namespace KinoLotteryData.Data.Entities
             {
                 NumberOfNumbers = createTicketDto.NumberOfNumbers,
                 NumbersPlayed = createTicketDto.NumbersPlayed,
-                PlayerId = createTicketDto.PlayerId,
                 NumberOfLotteries = createTicketDto.NumberOfLotteries
             };
         }

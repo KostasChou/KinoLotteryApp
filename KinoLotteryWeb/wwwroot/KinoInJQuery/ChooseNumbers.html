@@ -17,10 +17,11 @@
     <div id="container">
         <div id="numOFNumsContainer">
             <h3>How Many Numbers Would You Like To Play?</h3>
+            <p id="numOfNumsVal1" class="validations1">You need to choose how many numbers you want to play.</p>
         </div>
         <hr>
         <div id="numContainer">
-
+            <p id="numsVal1" class="validations1">You need the numbers you want to play.</p>
         </div>
         <div style="font-size:small; margin-top: 20px;">
             <label for="numOfLotteries">Number of Lotteries for this ticket (must be between 1 and 100).</label>
@@ -40,17 +41,13 @@
     </div>
 
     <script>
-        $(document).ready(async function () {
+        $(document).ready(function () {
             //const responce = await fetch('/api/controllername/action');
             //const json = await responce.json();
             $(function () {
                 $("#includedContent").load("navBar.html");
             });
-            
-            debugger;
-            console.log($.cookie());
-            
-                            
+
             var selectedNumbers = []
             var numOfNums = 0;
 
@@ -111,9 +108,23 @@
                     }
                 }
             });
-            $('#submitLogin').click(function () {
+            $('#submitLogin').click(async function () {
                 const numOfLotteries = $('#numOfLotteries').val();
                 const moneyPerLotterie = $('#moneyPerLottery').val();
+
+                if (numOfNums == 0) {
+                    $('#numOfNumsVal1').show();
+                    return;
+                }
+                else
+                    $('#numOfNumsVal1').hide();
+
+                if (selectedNumbers.length == 0) {
+                    $('#numsVal1').show();
+                    return;
+                }
+                else
+                    $('#numsVal1').hide();
 
                 if (numOfLotteries == null || numOfLotteries == 0) {
                     $('#numOfLotteriesVal1').show();
@@ -130,13 +141,28 @@
                 else
                     $('#moneyPerLotteryVal1').hide();
 
-                const registerDto = {
-                    NumberOfNumbers : numOfNums,
-                    NumbersPlayed : selectedNumbers,
-                    PlayerId : 1, 
-                    NumberOfLotteries : numOfLotteries,
-                    MoneyPlayedPerLottery: moneyPerLotterie
+                const createTicketDto = {
+                    NumberOfNumbers: numOfNums,
+                    NumbersPlayed: selectedNumbers.join(','),
+                    NumberOfLotteries: parseInt(numOfLotteries),
+                    MoneyPlayedPerLottery: parseInt(moneyPerLotterie)
+                };
+
+                try {
+                    const response = await fetch('/api/ticket', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+
+                        body: JSON.stringify(createTicketDto)
+                    });
                 }
+                catch (e){
+                    console.log(e)
+                }
+
+               
 
             })
         });
@@ -145,7 +171,7 @@
 </html>
 
 <style>
-    #container{
+    #container {
         background-color: beige;
         width: 500px;
         position: absolute;
@@ -154,10 +180,10 @@
         margin: auto;
         height: 1000px;
         text-align: center;
-        font-family:Verdana, Geneva, Tahoma, sans-serif ;
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
     }
 
-    .numOfNumsButtons{
+    .numOfNumsButtons {
         margin: 2px;
         border-radius: 45%;
         width: 45px;
@@ -165,7 +191,7 @@
         font-size: 1.3em;
     }
 
-    .numButtons{
+    .numButtons {
         margin: 2px;
         border-radius: 45%;
         width: 45px;
@@ -173,10 +199,11 @@
         font-size: 1.3em;
     }
 
-    .selectedNumOfNumsButton{
-        background-color:coral;
+    .selectedNumOfNumsButton {
+        background-color: coral;
     }
-    .selectedNumButton{
+
+    .selectedNumButton {
         background-color: aquamarine;
     }
 </style>
