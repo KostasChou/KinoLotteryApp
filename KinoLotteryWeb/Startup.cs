@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
+using System.Collections.Generic; 
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -39,11 +39,15 @@ namespace KinoLotteryWeb
 
 
             });
+            services.AddHostedService<LotteryService>();
             services.AddControllers();
             services.AddScoped<IPlayerRepository, PlayerRepository>();
             services.AddScoped<ITicketRepository, TicketRepository>();
+            services.AddScoped<ILotteryRepository, LotteryRepository>();
+            services.AddScoped<ILotteryTicketRepository, LotteryTicketRepository>();
+            //services.AddScoped<IHostedService, LotteryService>();
 
-            services.AddHostedService<LotteryService>();
+            // services.AddHostedService<LotteryService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

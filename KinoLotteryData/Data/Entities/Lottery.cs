@@ -11,11 +11,12 @@ namespace KinoLotteryData.Data.Entities
         public int Id { get; set; }
         [Required]
         public DateTime LotteryDateTime { get; set; }
+        [Required]
         public string WinningNumbers { get; set; }
         public int MoneyPlayed { get; set; }
-
         public int MoneyWon { get; set; }
-
         public ICollection<LotteryTicket> LotteryTickets { get; set; }
+
+
     }
 }

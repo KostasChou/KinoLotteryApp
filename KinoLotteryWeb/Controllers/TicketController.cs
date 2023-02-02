@@ -4,6 +4,7 @@ using KinoLotteryData.Services.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace KinoLotteryWeb.Controllers
@@ -31,7 +32,14 @@ namespace KinoLotteryWeb.Controllers
                 return NotFound();
             }
             Ticket ticket = createTicketDto;
-            var a = ticket.LotteryTickets;
+            try
+            {
+                ticket.PlayerId = Convert.ToInt32(User.FindFirst("Id").Value);
+            }
+            catch 
+            {
+                return BadRequest(new ProblemDetails() { Detail = "Please log in to continue." });
+            }
             await _repo.CreateTicketAsync(ticket);
             return Ok();
         }

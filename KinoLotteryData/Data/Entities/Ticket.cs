@@ -30,6 +30,7 @@ namespace KinoLotteryData.Data.Entities
 
         [Required]
         public int NumberOfLotteries { get; set; }
+        public int RemainingLotteries { get; set; }
         public ICollection<LotteryTicket> LotteryTickets { get; set; }
 
 
@@ -39,7 +40,9 @@ namespace KinoLotteryData.Data.Entities
             {
                 NumberOfNumbers = createTicketDto.NumberOfNumbers,
                 NumbersPlayed = createTicketDto.NumbersPlayed,
-                NumberOfLotteries = createTicketDto.NumberOfLotteries
+                NumberOfLotteries = createTicketDto.NumberOfLotteries,
+                RemainingLotteries = createTicketDto.NumberOfLotteries,
+                MoneyPlayedPerLottery = createTicketDto.MoneyPlayedPerLottery
             };
         }
     }
