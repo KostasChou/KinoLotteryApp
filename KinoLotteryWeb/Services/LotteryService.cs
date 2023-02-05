@@ -82,17 +82,9 @@ namespace KinoLotteryWeb.Services
                                 _logger.LogInformation("Line 80 1 min delay");
                                 await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
                             }
-                           
-
-
-
-
-
-                            
                         }
                     }
                 }
-                
             }
         }
 

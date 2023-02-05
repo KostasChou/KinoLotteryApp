@@ -1,8 +1,10 @@
 ﻿using KinoLotteryData.Data;
 using KinoLotteryData.Data.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,6 +13,7 @@ namespace KinoLotteryData.Services.Repositories
     public interface ILotteryRepository
     {
         Task<int> CreateLotteryAsync(Lottery lottery);
+        Task<string> GetLotteryNumbers();
     }
 
     public class LotteryRepository : ILotteryRepository
@@ -38,7 +41,10 @@ namespace KinoLotteryData.Services.Repositories
                 _logger.LogInformation(ex.Message.ToString());
                 throw new Exception(ex.Message);
             }
-            
+        }
+        public async Task<string> GetLotteryNumbers()
+        {
+            return _context.Lotteries.OrderByDescending(x => x.Id).Select(x => x.WinningNumbers).FirstOrDefaultAsync().ToString();
         }
     }
 }

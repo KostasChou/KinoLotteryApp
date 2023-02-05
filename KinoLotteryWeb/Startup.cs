@@ -32,7 +32,7 @@ namespace KinoLotteryWeb
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<KinoLotteryContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("WorkConnectionString")));
+                options.UseSqlServer(Configuration.GetConnectionString("HomeConnectionString")));
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(opt => {
                 opt.LoginPath = "/KinoInJQuery/Login.html";
