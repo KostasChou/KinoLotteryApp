@@ -13,7 +13,7 @@ namespace KinoLotteryData.Services.Repositories
     public interface ILotteryRepository
     {
         Task<int> CreateLotteryAsync(Lottery lottery);
-        Task<string> GetLotteryNumbers();
+        string GetLotteryNumbers();
     }
 
     public class LotteryRepository : ILotteryRepository
@@ -42,9 +42,11 @@ namespace KinoLotteryData.Services.Repositories
                 throw new Exception(ex.Message);
             }
         }
-        public async Task<string> GetLotteryNumbers()
+        public string GetLotteryNumbers()
         {
-            return _context.Lotteries.OrderByDescending(x => x.Id).Select(x => x.WinningNumbers).FirstOrDefaultAsync().ToString();
+            return _context.Lotteries.OrderByDescending(x => x.Id).Select(x => x.WinningNumbers).FirstOrDefault().ToString();
+            //if ((DateTime.Now.Minute % 5 == 0 && DateTime.Now.Second >= 0) &&
+            //    (DateTime.Now.Minute % 5 == 0 && DateTime.Now.Second < 1))
         }
     }
 }

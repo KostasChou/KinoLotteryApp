@@ -5,12 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lottery</title>
-    <script
-        src="https://code.jquery.com/jquery-3.6.1.js"
-        integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI="
-        crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.1.js"
+            integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI="
+            crossorigin="anonymous">
 
-        
+
     </script>
 </head>
 <body>
@@ -19,102 +18,125 @@
         <h4 id="clock"></h4>
         <hr>
     </div>
-        <script>
+    <script>
+        var winningNumbers = [];
+        var tempNumber = 0;
+        var smallCount = 0;
+        var bigCount = 0;
+        var lotteryStarted = false;
+
         $(document).ready(function () {
-            $(function(){
+            $(function () {
                 $("#includedContent").load("navBar.html");
+                //generateUIforPreviousLottery();
             });
 
-            async function clock(){
-                const date = new Date();
-                var mins = date.getMinutes();
-                $('#clock').text(date.toLocaleTimeString());
-                if (mins % 5 == 0 && !lotteryStarted) {
-                    
-                    try {
-                        const response = fetch('/api/LotteryController/GetLotteryNumbers')
-                            .then(response => {
-                                if (response.ok) {
-                                    return response.text();
-                                }
-                                throw new Error('Network response was not ok');
-                            })
-                            .then(data => {
-                                // Do something with the returned string (data)
-                                console.log(data);
-                            })
-                            .catch(error => {
-                                console.error('There was a problem with the fetch operation:', error);
-                            });
-                        console.log(response);
-                        console.log(response.text());
-                    }
-                    catch (e) {
-                        console.log(e)
-                    }
-                    
+            //async function generateUIforPreviousLottery() {
+            //    let response = await fetch('/api/lottery')
+            //    responseString = await response.text();
+            //    winningNumbers = responseString.split(',').map(function (item) {
+            //        return parseInt(item, 10);
+            //    });
 
-                    lotteryStarted = true;
-                    winningNumbers = [];
-                    $('.numButtons').removeClass('tempButtonColor');
-                    $('.numButtons').removeClass('winningNumber');
-                    lotteryInterval = setInterval(randomNumberGeneretor, 1000);
-                }
-                else if (mins % 5 != 0 && lotteryStarted){
-                    setTimeout(() => {lotteryStarted = false;}, 60000);
-                }
-            }
+            //    const date = new Date();
+            //    var mins = date.getMinutes();
+            //    var secs = date.getSeconds();
+            //    if (mins % 5 == 0 || (mins % 5 == 1 && secs < 20)) {
+            //        bigCount = secs / 4;
+            //        smallCount = (secs % 3 == 0) ? 0 : secs % 3;
 
-            var winningNumbers = [];
-            var tempNumber = 0;
-            var smallCount = 0;
-            var bigCount = 0;
-            var lotteryStarted = false;
-            var lotteryInterval;
+            //        for (let i = 0; i < bigCount; i++) {
+            //            $('#btn' + winningNumbers[i]).addClass('winningNumber');
+            //        }
+            //    }
+            //    else {
+            //        for (let i = 0; i < 20; i++) {
+            //            $('#btn' + winningNumbers[i]).addClass('winningNumber');
+            //        }
+            //    }
+            //}
+
+
             
-            for (var i = 1; i <= 80; i++){
+
+            for (var i = 1; i <= 80; i++) {     //function that creates all the numbers of the UI
                 $('#numContainer').append(`<button class="numButtons" id="btn${i}">  ${i} </button>`)
             }
 
             clockInterval = setInterval(clock, 1000);
 
-            function randomNumberGeneretor(){
-                smallCount++;
-                bigCount++;
-                if(bigCount > 79){
-                    clearInterval(lotteryInterval);
-                    smallCount = 0;
-                    bigCount = 0;
+            async function clock() {     //clock function that serves both showing a clock and triggering the lottery proccess every 5 mins
+                const date = new Date();
+                var mins = date.getMinutes();
+                $('#clock').text(date.toLocaleTimeString());
+
+                if (mins % 5 == 0 && !lotteryStarted) {
+
+                    winningNumbers = [];
+                    let response = await fetch('/api/lottery')
+                    responseString = await response.text();
+                    winningNumbers = responseString.split(',').map(function (item) {
+                        return parseInt(item, 10);
+                    });
+
+                    lotteryStarted = true;
+                    $('.numButtons').removeClass('tempButtonColor');
+                    $('.numButtons').removeClass('winningNumber');
+                    
+                    runLoop();
                 }
-                else{
-                    do{
+                else if (mins % 5 != 0 && lotteryStarted) {
+                    setTimeout(() => { lotteryStarted = false; }, 60000);  //changes the bool to false but at least a min has passed thus (mins % 5 != 0)
+                }
+            }
+
+            function runLoop() {     //callback function in order to pause the code while adding css colors to numbers
+                if (bigCount < 20) 
+                    randomNumberGeneretor(runLoop);
+                else
+                    bigCount = 0;
+            }
+
+
+            function randomNumberGeneretor(callback) {
+                smallCount++;
+                if (smallCount < 3) {     //find a random number and add a css color temporarily before a winning number
+                    do {
                         var x = Math.floor((Math.random() * 80) + 1);
-                    } while(x == tempNumber || winningNumbers.filter(function(item) {return item == x}).length > 0);
+                    } while (x == tempNumber); /*|| winningNumbers.filter(function (item) { return item == x }).length > 0*/
                     tempNumber = x;
 
-                    if(smallCount % 3 == 0){                //Color addition to a number that is finaliazed as a winning one
-                        $('#btn' + x).addClass('tempButtonColor');
-                        setTimeout(() => { $('#btn' + x).addClass('winningNumber'); }, 1000);
-                        winningNumbers.push(x);
-                    }
-                    else if(smallCount % 4 == 0){           //No color added, just leave some time between a winning number and the first temporary number of the next winning one
-                        smallCount = 0;
-                        setTimeout(() => { $('#btn' + x).addClass('numButtons')}, 1000);
-                    }
-                    else{                                   //Color addition to a number that is temporarily highlighted
-                        $('#btn' + x).addClass('tempButtonColor');
-                        setTimeout(() => { $('#btn' + x).removeClass('tempButtonColor'); }, 1000);
-                    }
+                    $('#btn' + x).addClass('tempButtonColor');      //Color addition to a number that is temporarily highlighted
+                    setTimeout(() => {
+                        $('#btn' + x).removeClass('tempButtonColor');
+                        callback();
+                    }, 1000);
+                }
+                else if (smallCount == 4) {     //Just leave some time between a winning number and the first temporary number of the next winning one
+                    smallCount = 0;
+                    bigCount++;
+                    setTimeout(() => {
+                        $('#btn' + winningNumbers[bigCount]).removeClass('tempButtonColor');
+                        callback();
+                    }, 1000);
+                }
+                else {     //Get the next winning number and add color
+                    $('#btn' + winningNumbers[bigCount]).addClass('tempButtonColor');
+                    setTimeout(() => {
+                        $('#btn' + winningNumbers[bigCount]).removeClass('tempButtonColor');
+                        $('#btn' + winningNumbers[bigCount]).addClass('winningNumber');
+                        callback();
+                    }, 1000);
                 }
             };
         });
-            
+
     </script>
 </body>
 </html>
 
 <style>
-    #numContainer{
+    #numContainer {
         background-color: beige;
         width: 500px;
         position: absolute;
@@ -123,21 +145,23 @@
         margin: auto;
         height: 1000px;
         text-align: center;
-        font-family:Verdana, Geneva, Tahoma, sans-serif ;
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
     }
-    .numButtons{
+
+    .numButtons {
         margin: 2px;
         border-radius: 45%;
         width: 45px;
         height: 45px;
         font-size: 1.3em;
     }
-    .tempButtonColor{
+
+    .tempButtonColor {
         background-color: rgb(138, 255, 255);
     }
-    .winningNumber{
+
+    .winningNumber {
         background-color: rgb(0, 4, 255);
         color: white;
     }
-
 </style>

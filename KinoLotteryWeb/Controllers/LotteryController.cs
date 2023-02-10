@@ -16,10 +16,9 @@ namespace KinoLotteryWeb.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<string>> GetLotteryNumbers()
+        public ActionResult<string> GetLotteryNumbers()
         {
-            var a = await _repo.GetLotteryNumbers();
-
+            var a = _repo.GetLotteryNumbers();
             return Ok(a);
         }
     }

@@ -32,7 +32,7 @@ namespace KinoLotteryWeb
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<KinoLotteryContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("HomeConnectionString")));
+                options.UseSqlServer(Configuration.GetConnectionString("WorkConnectionString")));
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(opt => {
                 opt.LoginPath = "/KinoInJQuery/Login.html";
@@ -40,14 +40,17 @@ namespace KinoLotteryWeb
 
             });
             services.AddHostedService<LotteryService>();
+            services.AddHostedService<SendLotteryToFrontService>();
+
             services.AddControllers();
+
+            services.AddSignalR();
+
             services.AddScoped<IPlayerRepository, PlayerRepository>();
             services.AddScoped<ITicketRepository, TicketRepository>();
             services.AddScoped<ILotteryRepository, LotteryRepository>();
             services.AddScoped<ILotteryTicketRepository, LotteryTicketRepository>();
-            //services.AddScoped<IHostedService, LotteryService>();
-
-            // services.AddHostedService<LotteryService>();
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -69,6 +72,7 @@ namespace KinoLotteryWeb
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<LotteryHub>("/lottery");
             });
         }
     }
