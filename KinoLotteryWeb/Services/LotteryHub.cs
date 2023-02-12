@@ -5,9 +5,9 @@ namespace KinoLotteryWeb.Services
 {
     public class LotteryHub : Hub
     {
-        public async Task SendLotteryNumbers(int[] winningNumbers)
+        public async Task SendLotteryNumbers(int lotteryNumber)
         {
-            await Clients.All.SendAsync("ReceiveLotteryNumbers", winningNumbers);
+            await Clients.All.SendAsync("ReceiveLotteryNumbers", lotteryNumber);
         }
     }
 }

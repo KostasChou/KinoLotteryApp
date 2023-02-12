@@ -108,7 +108,6 @@ namespace KinoLotteryWeb.Services
                 do
                 {
                     x = rnd.Next(1, 81);
-
                 } while (Array.Exists(randomNumbers, element => element == x));
                 randomNumbers[i] = x;
             }
