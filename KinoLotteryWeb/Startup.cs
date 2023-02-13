@@ -46,6 +46,7 @@ namespace KinoLotteryWeb
 
             services.AddSignalR();
 
+            services.AddSingleton<LotteryHub>();
             services.AddScoped<IPlayerRepository, PlayerRepository>();
             services.AddScoped<ITicketRepository, TicketRepository>();
             services.AddScoped<ILotteryRepository, LotteryRepository>();

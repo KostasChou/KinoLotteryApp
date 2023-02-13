@@ -7,13 +7,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+
 namespace KinoLotteryWeb.Services
 {
     public class SendLotteryToFrontService : BackgroundService
     {
-        private readonly ILogger _logger;
+        private readonly ILogger<SendLotteryToFrontService> _logger;
         private readonly IServiceProvider _serviceProvider;
-        public SendLotteryToFrontService(ILogger<LotteryService> logger, IServiceProvider serviceProvider)
+        public SendLotteryToFrontService(ILogger<SendLotteryToFrontService> logger, IServiceProvider serviceProvider)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;
@@ -28,10 +29,21 @@ namespace KinoLotteryWeb.Services
                 string winningNumbersString = lotteryRepository.GetLotteryNumbers();
 
                 LotteryHub lotteryHub = scope.ServiceProvider.GetRequiredService<LotteryHub>();
+                
                 int[] allLotteryNumbers = GetAllLotteryNumbers(winningNumbersString);
 
+                //implementation of run every five minutes
+                var now = DateTime.Now;
+                var nextInterval = now.AddMinutes(5 - (now.Minute % 5));
+                nextInterval = nextInterval.AddSeconds(-now.Second).AddMilliseconds(-now.Millisecond);
+                var waitTime = (int)(nextInterval - now).TotalMilliseconds;
+                await Task.Delay(waitTime, stoppingToken);
+
                 foreach (int number in allLotteryNumbers)
+                {
                     await lotteryHub.SendLotteryNumbers(number);
+                    await Task.Delay(1000, stoppingToken);
+                }
             }
         }
 
@@ -43,21 +55,24 @@ namespace KinoLotteryWeb.Services
             Random rnd = new Random();
             int tempNumb1 = 0;
             //int tempNumber = 0;
-            for (int i = 1; i <= 60; i++)
+            for (int i = 0; i < 60; i++)
             {
-                if (i % 3 == 0)
+                if ((i + 1) % 3 == 0)
                     allLotteryNumbers[i] = onlyWinningNumbers[i / 3];
+                else if ((i + 1) % 3 == 1)
+                {
+                    tempNumb1 = rnd.Next(1, 81);
+                    allLotteryNumbers[i] = tempNumb1;
+                }
                 else
                 {
                     int tempNumb2 = rnd.Next(1, 81);
                     while (tempNumb1 == tempNumb2)
                     {
                         tempNumb2 = rnd.Next(1, 81);
-                        _logger.LogInformation(tempNumb2.ToString());
                     }
+                    allLotteryNumbers[i] = tempNumb2;
                 }
-                
-                
             }
 
             return allLotteryNumbers;
