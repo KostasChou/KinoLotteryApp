@@ -37,11 +37,13 @@ namespace KinoLotteryData.Services.Repositories
                 await _context.LotteryTickets.AddRangeAsync(lotteryTickets);
 
                 await _context.SaveChangesAsync();
-                _logger.LogInformation("TicketLottery created successfully.");
+
+                //_logger.LogInformation($"Part 4 tickets FINISHED {DateTime.Now}");
+                //_logger.LogInformation("TicketLottery created successfully.");
             }
             catch (Exception ex)
             {
-                _logger.LogInformation(ex.Message.ToString());
+                //_logger.LogInformation(ex.Message.ToString());
             }
             
         }

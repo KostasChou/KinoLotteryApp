@@ -51,6 +51,8 @@ namespace KinoLotteryData.Services.Repositories
         {
             try
             {
+
+                //_logger.LogInformation($"Part 4 tickets STARTED {DateTime.Now}");
                 var activeTickets = await _context.Tickets.Where(x => x.RemainingLotteries > 0).ToListAsync();
                 foreach (var ticket in activeTickets)
                 {
@@ -58,7 +60,7 @@ namespace KinoLotteryData.Services.Repositories
                 }
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("active tickets retrieved successfully");
+                //_logger.LogInformation("active tickets retrieved successfully");
 
                 return activeTickets.Select(x => x.Id).ToList();
             }

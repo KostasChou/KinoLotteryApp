@@ -9,8 +9,9 @@
             integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI="
             crossorigin="anonymous">
 
-
+            
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.2/signalr.min.js"></script>
 </head>
 <body>
     <div id="includedContent"></div>
@@ -19,144 +20,73 @@
         <hr>
     </div>
     <script>
-        var winningNumbers = [];
-        var tempNumber = 0;
-        var smallCount = 0;
-        var bigCount = 0;
-        var lotteryStarted = false;
+
+        var receivedWinningNumbers = [];
+        var showingLotteryFinished = true;
 
         $(document).ready(function () {
             $(function () {
                 $("#includedContent").load("navBar.html");
-                //generateUIforPreviousLottery();
+                RenderAlreadyShownNumbers();
             });
-
-            //async function generateUIforPreviousLottery() {
-            //    let response = await fetch('/api/lottery')
-            //    responseString = await response.text();
-            //    winningNumbers = responseString.split(',').map(function (item) {
-            //        return parseInt(item, 10);
-            //    });
-
-            //    const date = new Date();
-            //    var mins = date.getMinutes();
-            //    var secs = date.getSeconds();
-            //    if (mins % 5 == 0 || (mins % 5 == 1 && secs < 20)) {
-            //        bigCount = secs / 4;
-            //        smallCount = (secs % 3 == 0) ? 0 : secs % 3;
-
-            //        for (let i = 0; i < bigCount; i++) {
-            //            $('#btn' + winningNumbers[i]).addClass('winningNumber');
-            //        }
-            //    }
-            //    else {
-            //        for (let i = 0; i < 20; i++) {
-            //            $('#btn' + winningNumbers[i]).addClass('winningNumber');
-            //        }
-            //    }
-            //}
-
-
-            
 
             for (var i = 1; i <= 80; i++) {     //function that creates all the numbers of the UI
                 $('#numContainer').append(`<button class="numButtons" id="btn${i}">  ${i} </button>`)
             }
 
-            clockInterval = setInterval(clock, 1000);
-
-            async function clock() {     //clock function that serves both showing a clock and triggering the lottery proccess every 5 mins
-                const date = new Date();
-                //var mins = date.getMinutes();
-                $('#clock').text(date.toLocaleTimeString());
-
-                //if (mins % 5 == 0 && !lotteryStarted) {
-
-                //    winningNumbers = [];
-                //    let response = await fetch('/api/lottery')
-                //    responseString = await response.text();
-                //    winningNumbers = responseString.split(',').map(function (item) {
-                //        return parseInt(item, 10);
-                //    });
-
-                //    lotteryStarted = true;
-                //    $('.numButtons').removeClass('tempButtonColor');
-                //    $('.numButtons').removeClass('winningNumber');
+            async function RenderAlreadyShownNumbers() {
+                let response = await fetch('/api/lottery');
+                responseString = await response.text();
+                if (responseString.length > 0) {
+                    receivedWinningNumbers = $.map(responseString.split(','), function (num) {
+                        return parseInt(num);
+                    });
                     
-                //    runLoop();
-                //}
-                //else if (mins % 5 != 0 && lotteryStarted) {
-                //    setTimeout(() => { lotteryStarted = false; }, 60000);  //changes the bool to false but at least a min has passed thus (mins % 5 != 0)
-                //}
-            }
-
-            function handleSignaRConnection() {
-                const connection = new signalR.HubConnectionBuilder()
-                    .withUrl("/lotteryHub")
-                    .build();
-
-                connection.start().then(function () {
-                    console.log("SignalR connection started.");
-                });
-
-                connection.on("ReceiveLotteryNumbers", function (lotteryNumber) {
-                    let receivedLotteryNumbers = [];
-                    receivedLotteryNumbers.push(lotteryNumber);
-                    if (receivedLotteryNumbers.length % 3 == 0) {
-                        $('#btn' + lotteryNumber).removeClass('tempButtonColor');
-                        $('#btn' + lotteryNumber).addClass('winningNumber');
+                    for (var i = 0; i < receivedWinningNumbers.length; i++) {
+                        $('#btn' + receivedWinningNumbers[i]).addClass('winningNumber');
                     }
-                    else if (receivedLotteryNumbers.length % 3 == 1)
-                        $('#btn' + lotteryNumber).addClass('tempButtonColor');
-                    else {
-                        $('#btn' + receivedLotteryNumbers[receivedLotteryNumbers - 1]).removeClass('tempButtonColor');
-                        $('#btn' + lotteryNumber).addClass('tempButtonColor');
-                    }
-            });
+
+                    if (receivedWinningNumbers.length == 20)
+                        receivedWinningNumbers = [];
+                }
             }
 
             
 
+            clockInterval = setInterval(clock, 10);
 
-            //function runLoop() {     //callback function in order to pause the code while adding css colors to numbers
-            //    if (bigCount < 20) 
-            //        randomNumberGeneretor(runLoop);
-            //    else
-            //        bigCount = 0;
-            //}
+            async function clock() {     
+                const date = new Date();
+                $('#clock').text(date.toLocaleTimeString());
+            }
 
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/lotteryHub")
+                .build();
+            
+            connection.start().then(function () {
+                console.log("SignalR connection started.");
+            });
+            
+            connection.on("ReceiveLotteryNumbers", function (lotteryNumberObject) {
+                if (receivedWinningNumbers.length == 0) 
+                    $('.numButtons').removeClass('winningNumber');
 
-            //function randomNumberGeneretor(callback) {
-            //    smallCount++;
-            //    if (smallCount < 3) {     //find a random number and add a css color temporarily before a winning number
-            //        do {
-            //            var x = Math.floor((Math.random() * 80) + 1);
-            //        } while (x == tempNumber); /*|| winningNumbers.filter(function (item) { return item == x }).length > 0*/
-            //        tempNumber = x;
+                $('.numButtons').removeClass('tempButtonColor');
 
-            //        $('#btn' + x).addClass('tempButtonColor');      //Color addition to a number that is temporarily highlighted
-            //        setTimeout(() => {
-            //            $('#btn' + x).removeClass('tempButtonColor');
-            //            callback();
-            //        }, 1000);
-            //    }
-            //    else if (smallCount == 4) {     //Just leave some time between a winning number and the first temporary number of the next winning one
-            //        smallCount = 0;
-            //        bigCount++;
-            //        setTimeout(() => {
-            //            $('#btn' + winningNumbers[bigCount]).removeClass('tempButtonColor');
-            //            callback();
-            //        }, 1000);
-            //    }
-            //    else {     //Get the next winning number and add color
-            //        $('#btn' + winningNumbers[bigCount]).addClass('tempButtonColor');
-            //        setTimeout(() => {
-            //            $('#btn' + winningNumbers[bigCount]).removeClass('tempButtonColor');
-            //            $('#btn' + winningNumbers[bigCount]).addClass('winningNumber');
-            //            callback();
-            //        }, 1000);
-            //    }
-            //};
+                if (lotteryNumberObject.isWinningNumber == true) {
+                    $('#btn' + lotteryNumberObject.number).addClass('winningNumber');
+                    receivedWinningNumbers.push(lotteryNumberObject.number);
+                }
+                else {
+                    $('#btn' + lotteryNumberObject.number).addClass('tempButtonColor');
+                }
+
+                if (receivedWinningNumbers.length == 20) {
+                    receivedWinningNumbers = [];
+                }
+            });
+
         });
 
     </script>
@@ -193,3 +123,4 @@
         color: white;
     }
 </style>
+

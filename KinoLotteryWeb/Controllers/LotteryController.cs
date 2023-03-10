@@ -1,4 +1,5 @@
 ﻿using KinoLotteryData.Services.Repositories;
+using KinoLotteryWeb.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -10,16 +11,22 @@ namespace KinoLotteryWeb.Controllers
     public class LotteryController : ControllerBase
     {
         private readonly ILotteryRepository _repo;
+        
+        
+        //private readonly LotteryService _service;
+
+
+
+
         public LotteryController(ILotteryRepository repo)
         {
             _repo = repo;
         }
 
         [HttpGet]
-        public ActionResult<string> GetLotteryNumbers()
+        public ActionResult<string> GetAlreadyShownLotteryNumbers()
         {
-            var a = _repo.GetLotteryNumbers();
-            return Ok(a);
+            return Ok(string.Join(',', LotteryService.numbersShownToUI.ToArray()));
         }
     }
 }

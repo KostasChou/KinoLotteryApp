@@ -40,13 +40,12 @@ namespace KinoLotteryWeb
 
             });
             services.AddHostedService<LotteryService>();
-            services.AddHostedService<SendLotteryToFrontService>();
+            //services.AddHostedService<SendLotteryToFrontService>();
 
             services.AddControllers();
 
             services.AddSignalR();
 
-            services.AddSingleton<LotteryHub>();
             services.AddScoped<IPlayerRepository, PlayerRepository>();
             services.AddScoped<ITicketRepository, TicketRepository>();
             services.AddScoped<ILotteryRepository, LotteryRepository>();
@@ -73,7 +72,7 @@ namespace KinoLotteryWeb
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<LotteryHub>("/lottery");
+                endpoints.MapHub<LotteryHub>("/lotteryhub");
             });
         }
     }

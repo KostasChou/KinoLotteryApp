@@ -1,9 +1,13 @@
 ﻿using KinoLotteryData.Data.Entities;
 using KinoLotteryData.Services.Repositories;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,22 +17,14 @@ namespace KinoLotteryWeb.Services
     {
         private readonly ILogger _logger;
         private readonly IServiceProvider _serviceProvider;
+        internal static List<int> numbersShownToUI = new List<int>();
         public LotteryService(ILogger<LotteryService> logger, IServiceProvider serviceProvider)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;
         }
 
-        /*The first Lottery of the day is at 9.00am and the last is at 23.55pm. The goal for every lottery is to be created (in this service) within a range
-         * of 4.00 min and let's say approximately 4.31 so it has time to be stored in the database and then the controller gets the new lottery in time in
-         * order to be displayed in the UI. After the lottery is stored (in the lottery method) then the service find all the tickets that should be related 
-         * with the new lottery and assign them the lottery Id (a proccess that realistically takes a lot of time due to the huge ammount of tickets that could 
-         * have been played, thus happens also in lottery method but after the new lottery has been stored successfully). First Lottery is happening at 9pm. If 
-         * the DateTime.Now is earlier than 9.00 but later than 8.59 then the creation of the first lottery takes place. If it is earlier than 8.59 then the 
-         * time is checked again after 30s. If the lottery happens for the first time then the time is checked again after 4 mins. And these delays are not stantard
-         * when a lottery takes place then we delay the task for 4 mins. When the time is checked again we delay it for 30s. The delay of this task is 4 insead
-         * of 5 mins in order to avoid any loss of time due to tasks that take a lot of time and we have not predict. */
-
+        //In this Method only actions related with time are implemented, the rest is inside the LotteryMethod()
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
@@ -36,82 +32,176 @@ namespace KinoLotteryWeb.Services
                 
                 if (DateTime.Now.TimeOfDay < TimeSpan.FromHours(9))
                 {
-                    var initialTime = TimeSpan.FromHours(9) - DateTime.Now.TimeOfDay;
-                    if (initialTime <= TimeSpan.FromMinutes(1))
-                    {
-                        _logger.LogInformation("First Lottery of the day line 42 ");
-                        LotteryMethod();
-                        await Task.Delay(TimeSpan.FromMinutes(4), stoppingToken);
-                    }
-                    else
-                    {
-                        await Task.Delay(initialTime - TimeSpan.FromSeconds(30), stoppingToken);
-                    }
+                    var now = DateTime.Now;
+                    var nextInterval = now.AddHours(8 - now.Hour).AddMinutes(59 - now.Minute).AddSeconds(59 - now.Second).AddMilliseconds(999);
+
+                    await Task.Delay(nextInterval.TimeOfDay, stoppingToken);
+                    await LotteryMethod(stoppingToken);
+
+                    //_logger.LogInformation($"First Lottery of the day line 35 {DateTime.Now}");
+
                 }
                 else
                 {
-                    if (DateTime.Now.TimeOfDay > new TimeSpan(23, 55, 0))
-                    {
-                        await Task.Delay(new TimeSpan(8, 55, 0), stoppingToken);
-                    }
-                    else
-                    {
-                        if (DateTime.Now.Minute % 5 == 4)
-                        {
-                            LotteryMethod();
-                            _logger.LogInformation("Line 62 4 mins delay");
-                            await Task.Delay(TimeSpan.FromMinutes(4), stoppingToken);
-                        }
-                        else
-                        {
-                            _logger.LogInformation("Line 67 1 min delay");
-                            await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
-                        }
-                    }
+                    var now = DateTime.Now;
+                    var nextInterval = now.AddMinutes(5 - (now.Minute % 5));
+                    nextInterval = nextInterval.AddSeconds(-now.Second).AddMilliseconds(-now.Millisecond);
+                    var waitTime = (int)(nextInterval - now).TotalMilliseconds;
+
+                    //_logger.LogInformation($"var waitTime: {waitTime}");
+
+                    //_logger.LogInformation($"BEFORE TASK DELAY AND LOTTERYMETHOD {DateTime.Now}");
+                    //_logger.LogInformation($"WAITING TIME: {waitTime}");
+                    await Task.Delay(waitTime, stoppingToken);
+                    await LotteryMethod(stoppingToken);
+
+                    //_logger.LogInformation($"AFTER TASK DELAY AND LOTTERYMETHOD {DateTime.Now}");
+
+                    //await Task.Delay(TimeSpan.FromMinutes(2), stoppingToken);
+
+                    //the last lottery of the day at 23:55
+                    if(DateTime.Now.TimeOfDay > new TimeSpan(23, 55, 00))
+                        await Task.Delay(TimeSpan.FromHours(9), stoppingToken);
                 }
+                //_logger.LogInformation($"END OF WHILE LOOP{DateTime.Now}");
             }
         }
 
-        private async void LotteryMethod()
+        private async Task LotteryMethod(CancellationToken stoppingToken)
         {
+            
             using IServiceScope scope = _serviceProvider.CreateScope();
-            _logger.LogInformation("NumberService is running maaaaaaaan");
-            var winningNumbers = RandomNumberGenerator();
+            //First part: Request a true random nambor from an api and seed to to Random Class to create the random winning numbers.
+            var randomNumberSeed = await GetTrueRandomSeedNumber();
+            var winningNumbers = RandomNumberGenerator(randomNumberSeed);
+
+            //Second part: Store the newly created lottery in the database and do not leave the loop until we get the Id of the newly added lottery entity
             int newLotteryId = 0;
             do
             {
                 var lotteryRepository = scope.ServiceProvider.GetRequiredService<ILotteryRepository>();
-                newLotteryId = await lotteryRepository.CreateLotteryAsync(new Lottery
+                var newLottery = await lotteryRepository.CreateLotteryAsync(new Lottery
                 {
-                    LotteryDateTime = DateTime.Now.AddMinutes(5 - (DateTime.Now.Minute % 5)),
+                    LotteryDateTime = DateTime.Now,
                     WinningNumbers = String.Join(',', winningNumbers),
                     HasBeenShownToUI = false
                 });
+                newLotteryId = newLottery.Id;
             } while (newLotteryId == 0);
 
+            //Third part: call the method that gets the winning numbers (and create all the temporary ones) and sends them to the front-end
+            SendLotteryToFrontService(scope, newLotteryId, stoppingToken);
+
+            //Fourth part: Get all tickets with remaining lotteries and create and store the middle many to many entities (lotteryTicket) to the Databse
             var ticketRepository = scope.ServiceProvider.GetRequiredService<ITicketRepository>();
             var activeTicketIds = await ticketRepository.GetActiveTicketsAsync();
 
-            _logger.LogInformation("activeTicketIds: " + activeTicketIds.ToString());
-
             var lotteryTicketRepository = scope.ServiceProvider.GetRequiredService<ILotteryTicketRepository>();
             await lotteryTicketRepository.CreateLotteryTicketAsync(activeTicketIds, newLotteryId);
+
+
+            //_logger.LogInformation($"Part 5 lottery METHOD ENDED {DateTime.Now}");
         }
 
-        private int[] RandomNumberGenerator()
+        private int[] RandomNumberGenerator(int seed)
         {
             int[] randomNumbers = new int[20];
             for (int i = 0; i < randomNumbers.Length; i++)
             {
-                Random rnd = new Random();
+                Random rnd = new Random(seed);
                 var x = rnd.Next(1, 81);
                 do
                 {
                     x = rnd.Next(1, 81);
-                } while (Array.Exists(randomNumbers, element => element == x));
+                } while (randomNumbers.Contains(x));
                 randomNumbers[i] = x;
             }
+
+            //_logger.LogInformation($"Part 1 random numBer FINISHED {DateTime.Now.Second} + {DateTime.Now.Millisecond}");
+
             return randomNumbers;
+        }
+
+        private async Task<int> GetTrueRandomSeedNumber()
+        {
+            try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    string responseString = await client.GetStringAsync("https://www.random.org/integers/?num=1&min=1&max=999999999&col=1&base=10&format=plain&rnd=new");
+                    string numbersString = responseString.ToString();
+                    return Convert.ToInt32(numbersString);
+                }
+            }
+            catch
+            {
+                using (var rng = new System.Security.Cryptography.RNGCryptoServiceProvider())
+                {
+                    var randomNumber = new byte[4];
+                    rng.GetBytes(randomNumber);
+                    return BitConverter.ToInt32(randomNumber, 0);
+                }
+            }
+        }
+
+        private async void SendLotteryToFrontService(IServiceScope scope, int lotteryId, CancellationToken stoppingToken)
+        {
+            numbersShownToUI = new List<int>();
+            ILotteryRepository lotteryRepository = scope.ServiceProvider.GetRequiredService<ILotteryRepository>();
+            string winningNumbersString = lotteryRepository.GetLotteryNumbersById(lotteryId);
+            var lotteryHub = scope.ServiceProvider.GetRequiredService<IHubContext<LotteryHub>>();
+            int[] allLotteryNumbers = GetAllLotteryNumbers(winningNumbersString);
+
+            for (int i = 1; i <= allLotteryNumbers.Length; i++)
+            {
+                if (i % 4 == 0)
+                {
+                    await lotteryHub.Clients.All.SendAsync("ReceiveLotteryNumbers", new { Number = allLotteryNumbers[i - 1], IsWinningNumber = true });
+                    numbersShownToUI.Add(allLotteryNumbers[i - 1]);
+                }
+                else
+                {
+                    await lotteryHub.Clients.All.SendAsync("ReceiveLotteryNumbers", new { Number = allLotteryNumbers[i - 1], IsWinningNumber = false });
+                }
+
+                await Task.Delay(850, stoppingToken);
+            }
+
+            //_logger.LogInformation($"Part 3 lottery sent to front FINISHED {DateTime.Now.Second} + {DateTime.Now.Millisecond}");
+        }
+
+        private int[] GetAllLotteryNumbers(string winningNumbersString)
+        {
+            int[] allLotteryNumbers = new int[80];
+            int[] onlyWinningNumbers = winningNumbersString.Split(',').Select(int.Parse).ToArray();
+            int tempNumb1 = 0;
+
+            int[] tempWinningArray = new int[20]; //In order for the random temp numbers shown before the winning ones to be the same as future winning numbers but not already shown winning numbers
+
+            //int tempNumber = 0;
+
+            for (int i = 1; i <= 80; i++)
+            {
+                if (i % 4 == 3)
+                {
+                    allLotteryNumbers[i - 1] = allLotteryNumbers[i] = tempWinningArray[i / 4] = onlyWinningNumbers[i / 4];
+                    i++;
+                }
+                else
+                {
+                    Random rnd = new Random();
+                    int tempNumb2 = 0;
+
+                    do
+                    {
+                        tempNumb2 = rnd.Next(1, 81);
+                    } while (tempNumb1 == tempNumb2 || tempWinningArray.Contains(tempNumb2));
+                    tempNumb1 = tempNumb2;
+                    allLotteryNumbers[i - 1] = tempNumb1;
+                }
+            }
+
+            return allLotteryNumbers;
         }
 
     }

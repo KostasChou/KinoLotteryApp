@@ -12,8 +12,8 @@ namespace KinoLotteryData.Services.Repositories
 {
     public interface ILotteryRepository
     {
-        Task<int> CreateLotteryAsync(Lottery lottery);
-        string GetLotteryNumbers();
+        Task<Lottery> CreateLotteryAsync(Lottery lottery);
+        string GetLotteryNumbersById(int lotteryId);
     }
 
     public class LotteryRepository : ILotteryRepository
@@ -25,7 +25,7 @@ namespace KinoLotteryData.Services.Repositories
             _context = context;
             _logger = logger;
         }
-        public async Task<int> CreateLotteryAsync(Lottery lottery)
+        public async Task<Lottery> CreateLotteryAsync(Lottery lottery)
         {
             if(lottery == null)
                 throw new ArgumentNullException(nameof(lottery));
@@ -33,8 +33,10 @@ namespace KinoLotteryData.Services.Repositories
             {
                 var a = await _context.Lotteries.AddAsync(lottery);
                 await _context.SaveChangesAsync();
-                _logger.LogInformation("Lottery created successfully.");
-                return a.Entity.Id;
+                //_logger.LogInformation("Lottery created successfully.");
+
+                //_logger.LogInformation($"Part 2 lottery created FINISHED {DateTime.Now.Second} + {DateTime.Now.Millisecond}");
+                return a.Entity;
             }
             catch(Exception ex)
             {
@@ -42,9 +44,10 @@ namespace KinoLotteryData.Services.Repositories
                 throw new Exception(ex.Message);
             }
         }
-        public string GetLotteryNumbers()
+        public string GetLotteryNumbersById(int lotteryId)
         {
-            return _context.Lotteries.OrderByDescending(x => x.Id).Select(x => x.WinningNumbers).FirstOrDefault().ToString();
+            return _context.Lotteries.Where(x => x.Id == lotteryId).Select(x => x.WinningNumbers).FirstOrDefault();
+                //_context.Lotteries.OrderByDescending(x => x.Id).Select(x => x.WinningNumbers).FirstOrDefault().ToString();
             //if ((DateTime.Now.Minute % 5 == 0 && DateTime.Now.Second >= 0) &&
             //    (DateTime.Now.Minute % 5 == 0 && DateTime.Now.Second < 1))
         }
