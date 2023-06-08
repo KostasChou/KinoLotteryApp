@@ -43,7 +43,7 @@ namespace KinoLotteryData.Services.Repositories
             }
             catch (Exception ex)
             {
-                //_logger.LogInformation(ex.Message.ToString());
+                _logger.LogInformation(ex.Message.ToString());
             }
             
         }

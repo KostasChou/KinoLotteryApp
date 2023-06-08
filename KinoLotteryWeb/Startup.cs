@@ -35,7 +35,7 @@ namespace KinoLotteryWeb
                 options.UseSqlServer(Configuration.GetConnectionString("WorkConnectionString")));
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(opt => {
-                opt.LoginPath = "/KinoInJQuery/Login.html";
+                opt.LoginPath = "/Login.html";
 
 
             });

@@ -5,17 +5,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lottery</title>
-    <script src="https://code.jquery.com/jquery-3.6.1.js"
-            integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI="
-            crossorigin="anonymous">
-
-            
-    </script>
+    <link rel="stylesheet" href="GenericCss/GenericCss.css" />
+    <script src="Scripts/jQueryFileMin.js"></script>
+    <script src="Scripts/JSActions.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.2/signalr.min.js"></script>
 </head>
 <body>
     <div id="includedContent"></div>
-    <div id="numContainer">
+    <div id="numContainer" class="cssMainContainer">
         <h4 id="clock"></h4>
         <hr>
     </div>
@@ -31,7 +28,7 @@
             });
 
             for (var i = 1; i <= 80; i++) {     //function that creates all the numbers of the UI
-                $('#numContainer').append(`<button class="numButtons" id="btn${i}">  ${i} </button>`)
+                $('#numContainer').append(`<button class="numButtons cssButtons" id="btn${i}">  ${i} </button>`)
             }
 
             async function RenderAlreadyShownNumbers() {
@@ -50,8 +47,6 @@
                         receivedWinningNumbers = [];
                 }
             }
-
-            
 
             clockInterval = setInterval(clock, 10);
 
@@ -86,33 +81,12 @@
                     receivedWinningNumbers = [];
                 }
             });
-
         });
-
     </script>
 </body>
 </html>
 
 <style>
-    #numContainer {
-        background-color: beige;
-        width: 500px;
-        position: absolute;
-        left: 0;
-        right: 0;
-        margin: auto;
-        height: 1000px;
-        text-align: center;
-        font-family: Verdana, Geneva, Tahoma, sans-serif;
-    }
-
-    .numButtons {
-        margin: 2px;
-        border-radius: 45%;
-        width: 45px;
-        height: 45px;
-        font-size: 1.3em;
-    }
 
     .tempButtonColor {
         background-color: rgb(138, 255, 255);

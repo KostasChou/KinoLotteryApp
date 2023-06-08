@@ -14,7 +14,7 @@ namespace KinoLotteryData.Services.Repositories
     {
         Task<int> CreateTicketAsync(Ticket ticket);
 
-        Task<List<int>> GetActiveTicketsAsync();
+        Task<List<Ticket>> GetActiveTicketsAsync();
     }
 
     public class TicketRepository : ITicketRepository
@@ -47,11 +47,10 @@ namespace KinoLotteryData.Services.Repositories
             }
         }
 
-        public async Task<List<int>> GetActiveTicketsAsync()
+        public async Task<List<Ticket>> GetActiveTicketsAsync()
         {
             try
             {
-
                 //_logger.LogInformation($"Part 4 tickets STARTED {DateTime.Now}");
                 var activeTickets = await _context.Tickets.Where(x => x.RemainingLotteries > 0).ToListAsync();
                 foreach (var ticket in activeTickets)
@@ -62,15 +61,13 @@ namespace KinoLotteryData.Services.Repositories
 
                 //_logger.LogInformation("active tickets retrieved successfully");
 
-                return activeTickets.Select(x => x.Id).ToList();
+                return activeTickets;
             }
             catch (Exception ex)
             {
                 _logger.LogInformation(ex.Message.ToString());
                 return null;
             }
-            
-
         }
 
 

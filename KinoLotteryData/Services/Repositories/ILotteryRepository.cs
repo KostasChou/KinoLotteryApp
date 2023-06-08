@@ -47,9 +47,7 @@ namespace KinoLotteryData.Services.Repositories
         public string GetLotteryNumbersById(int lotteryId)
         {
             return _context.Lotteries.Where(x => x.Id == lotteryId).Select(x => x.WinningNumbers).FirstOrDefault();
-                //_context.Lotteries.OrderByDescending(x => x.Id).Select(x => x.WinningNumbers).FirstOrDefault().ToString();
-            //if ((DateTime.Now.Minute % 5 == 0 && DateTime.Now.Second >= 0) &&
-            //    (DateTime.Now.Minute % 5 == 0 && DateTime.Now.Second < 1))
+                
         }
     }
 }

@@ -6,15 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Choose Numbers</title>
     <link rel="stylesheet" href="GenericCss/GenericCss.css">
-    <script src="https://code.jquery.com/jquery-3.6.1.js"
-            integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI="
-            crossorigin="anonymous">
-    </script>
+
+    <script src="Scripts/jQueryFileMin.js"></script>
+    <script src="Scripts/JSActions.js"></script>
 </head>
 
 <body>
     <div id="includedContent"></div>
-    <div id="container">
+
+    <div class="cssMainContainer">
         <div id="numOFNumsContainer">
             <h3>How Many Numbers Would You Like To Play?</h3>
             <p id="numOfNumsVal1" class="validations1">You need to choose how many numbers you want to play.</p>
@@ -39,6 +39,9 @@
         <button id="submitLogin">Submit Ticket</button>
 
     </div>
+    <div id="toast-container"></div>
+
+    
 
     <script>
         $(document).ready(function () {
@@ -52,11 +55,11 @@
             var numOfNums = 0;
 
             for (var i = 3; i <= 12; i++) {
-                $('#numOFNumsContainer').append(`<button class="numOfNumsButtons" id="numBtn${i}"> ${i} </button>`)
+                $('#numOFNumsContainer').append(`<button class="numOfNumsButtons cssButtons" id="numBtn${i}"> ${i} </button>`)
             }
 
             for (var i = 1; i <= 80; i++) {
-                $('#numContainer').append(`<button class="numButtons" id="btn${i}">  ${i} </button>`)
+                $('#numContainer').append(`<button class="numButtons cssButtons" id="btn${i}">  ${i} </button>`)
             }
 
             function clearAllNumbers() {
@@ -156,16 +159,19 @@
                         },
 
                         body: JSON.stringify(createTicketDto)
+                    }).then(function (response) {
+                        showToast("Ticket successfully submitted.");
+                        var a = response;
                     });
                     console.log(response);
                 }
-                catch (e){
+                catch (e) {
                     console.log(e)
                 }
-
-               
-
             })
+
+            
+
         });
     </script>
 </body>
@@ -179,27 +185,11 @@
         left: 0;
         right: 0;
         margin: auto;
-        height: 1000px;
         text-align: center;
         font-family: Verdana, Geneva, Tahoma, sans-serif;
     }
 
-    .numOfNumsButtons {
-        margin: 2px;
-        border-radius: 45%;
-        width: 45px;
-        height: 45px;
-        font-size: 1.3em;
-    }
-
-    .numButtons {
-        margin: 2px;
-        border-radius: 45%;
-        width: 45px;
-        height: 45px;
-        font-size: 1.3em;
-    }
-
+  
     .selectedNumOfNumsButton {
         background-color: coral;
     }
@@ -207,4 +197,7 @@
     .selectedNumButton {
         background-color: aquamarine;
     }
+
+    
+
 </style>

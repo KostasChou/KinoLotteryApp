@@ -1,0 +1,44 @@
+﻿.validations1 {
+    color:red; 
+    display:none;
+    font-size:small;
+}
+
+.cssMainContainer {
+    background-color: beige;
+    width: 500px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: auto;
+    /*height: 1000px;*/
+    text-align: center;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.toast {
+    position: relative;
+    background-color: #333;
+    color: #fff;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    z-index: 9999;
+    width: 200px;
+}
+
+.toast .close {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.cssButtons {
+    margin: 2px;
+    border-radius: 45%;
+    width: 45px;
+    height: 45px;
+    font-size: 1.3em;
+}

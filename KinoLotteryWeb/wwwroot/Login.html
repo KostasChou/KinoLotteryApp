@@ -6,15 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Log In</title>
     <link rel="stylesheet" href="GenericCss/GenericCss.css">
-    <script
-        src="https://code.jquery.com/jquery-3.6.1.js"
-        integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI="
-        crossorigin="anonymous">
-        
-    </script>
+    <script src="Scripts/jQueryFileMin.js"></script>
+    <script src="Scripts/JSActions.js"></script>
 </head>
 <body>
-    <div id="container">
+    <div class="cssMainContainer">
         <div class="inputContainer">
             <label for="userNameInput">User Name: &nbsp; </label>
             <input type="text" id="userNameInput">
@@ -70,7 +66,7 @@
 
                 if (response.status < 400) {
                     $('#loginVal').hide();
-                    window.location = "/KinoInJQuery/Lottery.html";
+                    window.location = "/Lottery.html";
                 }
                 else {
                     console.log(response.status)
@@ -84,17 +80,7 @@
 </html>
 
 <style>
-    #container{
-        background-color: beige;
-        width: 500px;
-        position: absolute;
-        left: 0;
-        right: 0;
-        margin: auto;
-        height: 1000px;
-        text-align: center;
-        font-family:Verdana, Geneva, Tahoma, sans-serif ;
-    }
+   
 
     .inputContainer{
         margin: auto;

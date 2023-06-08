@@ -15,7 +15,6 @@ namespace KinoLotteryData.Data.Entities
         public string WinningNumbers { get; set; }
         public int MoneyPlayed { get; set; }
         public int MoneyWon { get; set; }
-        public bool HasBeenShownToUI { get; set; }
         public ICollection<LotteryTicket> LotteryTickets { get; set; }
 
 

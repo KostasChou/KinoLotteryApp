@@ -84,7 +84,6 @@ namespace KinoLotteryWeb.Services
                 {
                     LotteryDateTime = DateTime.Now,
                     WinningNumbers = String.Join(',', winningNumbers),
-                    HasBeenShownToUI = false
                 });
                 newLotteryId = newLottery.Id;
             } while (newLotteryId == 0);
@@ -94,10 +93,10 @@ namespace KinoLotteryWeb.Services
 
             //Fourth part: Get all tickets with remaining lotteries and create and store the middle many to many entities (lotteryTicket) to the Databse
             var ticketRepository = scope.ServiceProvider.GetRequiredService<ITicketRepository>();
-            var activeTicketIds = await ticketRepository.GetActiveTicketsAsync();
+            var activeTickets = await ticketRepository.GetActiveTicketsAsync();
 
             var lotteryTicketRepository = scope.ServiceProvider.GetRequiredService<ILotteryTicketRepository>();
-            await lotteryTicketRepository.CreateLotteryTicketAsync(activeTicketIds, newLotteryId);
+            await lotteryTicketRepository.CreateLotteryTicketAsync(activeTickets.Select(x => x.Id).ToList(), newLotteryId);
 
 
             //_logger.LogInformation($"Part 5 lottery METHOD ENDED {DateTime.Now}");

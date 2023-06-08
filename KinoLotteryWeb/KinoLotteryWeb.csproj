@@ -5,10 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\KinoInJQuery\ChooseNumbers.html" />
-    <None Include="wwwroot\KinoInJQuery\Images\kindpng_1114679.png" />
-    <None Include="wwwroot\KinoInJQuery\Lottery.html" />
-    <None Include="wwwroot\KinoInJQuery\navBar.html" />
+    <None Include="wwwroot\ChooseNumbers.html" />
+    <None Include="wwwroot\Images\kindpng_1114679.png" />
+    <None Include="wwwroot\Lottery.html" />
+    <None Include="wwwroot\navBar.html" />
   </ItemGroup>
 
   <ItemGroup>
