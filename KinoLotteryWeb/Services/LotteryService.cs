@@ -18,6 +18,7 @@ namespace KinoLotteryWeb.Services
         private readonly ILogger _logger;
         private readonly IServiceProvider _serviceProvider;
         internal static List<int> numbersShownToUI = new List<int>();
+        private LotteryPerformance[] _performances = new LotteryPerformance[85];
         public LotteryService(ILogger<LotteryService> logger, IServiceProvider serviceProvider)
         {
             _logger = logger;
@@ -57,7 +58,6 @@ namespace KinoLotteryWeb.Services
 
                     //_logger.LogInformation($"AFTER TASK DELAY AND LOTTERYMETHOD {DateTime.Now}");
 
-                    //await Task.Delay(TimeSpan.FromMinutes(2), stoppingToken);
 
                     //the last lottery of the day at 23:55
                     if(DateTime.Now.TimeOfDay > new TimeSpan(23, 55, 00))
@@ -91,12 +91,18 @@ namespace KinoLotteryWeb.Services
             //Third part: call the method that gets the winning numbers (and create all the temporary ones) and sends them to the front-end
             SendLotteryToFrontService(scope, newLotteryId, stoppingToken);
 
-            //Fourth part: Get all tickets with remaining lotteries and create and store the middle many to many entities (lotteryTicket) to the Databse
+            //Fourth part: Get all tickets with remaining lotteries and 
             var ticketRepository = scope.ServiceProvider.GetRequiredService<ITicketRepository>();
-            var activeTickets = await ticketRepository.GetActiveTicketsAsync();
+            List<Ticket> activeTickets = await ticketRepository.GetActiveTicketsAsync();
 
+            //Fifth part: Find the tickets who won and how much
+
+            FindWinningTickets(scope, newLotteryId, activeTickets);
+
+            //Sixth part: create and store the middle many to many entities (lotteryTicket) to the Databse
             var lotteryTicketRepository = scope.ServiceProvider.GetRequiredService<ILotteryTicketRepository>();
             await lotteryTicketRepository.CreateLotteryTicketAsync(activeTickets.Select(x => x.Id).ToList(), newLotteryId);
+
 
 
             //_logger.LogInformation($"Part 5 lottery METHOD ENDED {DateTime.Now}");
@@ -203,5 +209,41 @@ namespace KinoLotteryWeb.Services
             return allLotteryNumbers;
         }
 
+        private List<LotteryTicket> FindWinningTickets(IServiceScope scope, int lotteryId, List<Ticket> tickets)
+        {
+            ILotteryRepository lotteryRepository = scope.ServiceProvider.GetRequiredService<ILotteryRepository>();
+            string winningNumbersString = lotteryRepository.GetLotteryNumbersById(lotteryId);
+            int[] winningNumbers = winningNumbersString.Split(',').Select(int.Parse).ToArray();
+            List<LotteryTicket> lotteryTickets = new List<LotteryTicket>();
+
+            for(int i = 0; i < tickets.Count; i++)
+            {
+                int numbersMatched = 0;
+
+                LotteryPerformance[] performanceForSpecificTicket = _performances.Where(p => p.NumberOfNumbers == tickets[i].NumberOfNumbers).ToArray();
+
+                for (int j = 0; j < tickets[i].NumberOfNumbers; j++)
+                {
+                    int[] ticketNumbers = tickets[i].NumbersPlayed.Split(',').Select(int.Parse).ToArray();
+
+                    if (winningNumbers.Contains(ticketNumbers[j]))
+                    {
+                        numbersMatched++;
+                    }
+                }
+
+                lotteryTickets.Add(new LotteryTicket()
+                {
+                    LotteryId = lotteryId,
+                    TicketId = tickets[i].Id,
+                    NumbersMatched = numbersMatched,
+                    MoneyWon = Convert.ToDecimal(performanceForSpecificTicket
+                                                            .Where(p => p.NumberOfNumbers == tickets[i].NumberOfNumbers && p.NumbersMatched == numbersMatched)
+                                                            .Select(p => p.PayoutMultiplier * tickets[i].MoneyPlayedPerLottery))
+                });
+            }
+
+            return lotteryTickets;
+        }
     }
 }

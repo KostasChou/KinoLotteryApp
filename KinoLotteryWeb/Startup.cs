@@ -34,10 +34,10 @@ namespace KinoLotteryWeb
             services.AddDbContext<KinoLotteryContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("WorkConnectionString")));
 
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(opt => {
-                opt.LoginPath = "/Login.html";
-
-
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options => {
+                options.LoginPath = "/Login.html";
+                options.LogoutPath = "/Login.html";
+                options.Cookie.Expiration = null;
             });
             services.AddHostedService<LotteryService>();
             //services.AddHostedService<SendLotteryToFrontService>();

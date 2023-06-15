@@ -2,19 +2,19 @@
 
 namespace KinoLotteryData.Migrations
 {
-    public partial class remaininglotteriesAdded : Migration
+    public partial class NumbersMatched_MoneyWonColumnsAdded : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
-                name: "MoneyPlayedPerLottery",
-                table: "Tickets",
+            migrationBuilder.AddColumn<decimal>(
+                name: "MoneyWon",
+                table: "LotteryTickets",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: 0m);
 
             migrationBuilder.AddColumn<int>(
-                name: "RemainingLotteries",
-                table: "Tickets",
+                name: "NumbersMatched",
+                table: "LotteryTickets",
                 nullable: false,
                 defaultValue: 0);
         }
@@ -22,12 +22,12 @@ namespace KinoLotteryData.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "MoneyPlayedPerLottery",
-                table: "Tickets");
+                name: "MoneyWon",
+                table: "LotteryTickets");
 
             migrationBuilder.DropColumn(
-                name: "RemainingLotteries",
-                table: "Tickets");
+                name: "NumbersMatched",
+                table: "LotteryTickets");
         }
     }
 }

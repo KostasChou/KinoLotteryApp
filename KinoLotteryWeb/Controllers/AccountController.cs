@@ -53,6 +53,15 @@ namespace KinoLotteryWeb.Controllers
 
         }
 
+        [HttpPost("Logout")]
+        public async Task<ActionResult> Logout()
+        {
+            // Sign out the user
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            return Ok();
+        }
+
         [HttpPost("register")]
 
         public async Task<ActionResult> Register(RegisterDto playerRegister)
@@ -74,12 +83,5 @@ namespace KinoLotteryWeb.Controllers
             return Ok(player);
         }
 
-        [Authorize]
-        [HttpPost("logout")]
-        public async Task<ActionResult> LogOut()
-        {
-            await HttpContext.SignOutAsync();
-            return NoContent();
-        }
     }
 }

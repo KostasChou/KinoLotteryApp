@@ -11,12 +11,6 @@ namespace KinoLotteryWeb.Controllers
     public class LotteryController : ControllerBase
     {
         private readonly ILotteryRepository _repo;
-        
-        
-        //private readonly LotteryService _service;
-
-
-
 
         public LotteryController(ILotteryRepository repo)
         {

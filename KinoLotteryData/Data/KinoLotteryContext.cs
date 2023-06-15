@@ -17,5 +17,7 @@ namespace KinoLotteryData.Data
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<Lottery> Lotteries { get; set; }
         public DbSet<LotteryTicket> LotteryTickets { get; set; }
+        public DbSet<LotteryPerformance> LotteryPerformances { get; set; }
+
     }
 }

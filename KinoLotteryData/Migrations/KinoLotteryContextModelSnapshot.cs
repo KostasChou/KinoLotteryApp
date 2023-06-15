@@ -44,6 +44,27 @@ namespace KinoLotteryData.Migrations
                     b.ToTable("Lotteries");
                 });
 
+            modelBuilder.Entity("KinoLotteryData.Data.Entities.LotteryPerformance", b =>
+                {
+                    b.Property<int>("LotteryPerformanceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("NumberOfNumbers")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NumbersMatched")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("PayoutMultiplier")
+                        .HasColumnType("decimal(10, 2)");
+
+                    b.HasKey("LotteryPerformanceId");
+
+                    b.ToTable("LotteryPerformances");
+                });
+
             modelBuilder.Entity("KinoLotteryData.Data.Entities.LotteryTicket", b =>
                 {
                     b.Property<int>("Id")
@@ -52,6 +73,12 @@ namespace KinoLotteryData.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int>("LotteryId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("MoneyWon")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("NumbersMatched")
                         .HasColumnType("int");
 
                     b.Property<int>("TicketId")

@@ -45,10 +45,12 @@
 
     <script>
         $(document).ready(function () {
-            //const responce = await fetch('/api/controllername/action');
-            //const json = await responce.json();
             $(function () {
-                $("#includedContent").load("navBar.html");
+                $("#includedContent").load("navBar.html", function () {
+                    $('#logOutActionId').click(async function () {
+                        logOutFunction()
+                    })
+                });
             });
 
             var selectedNumbers = []
@@ -160,10 +162,15 @@
 
                         body: JSON.stringify(createTicketDto)
                     }).then(function (response) {
-                        showToast("Ticket successfully submitted.");
-                        var a = response;
+                        if (response.status == 400) {
+                            response.text().then(function (errorResponse) {
+                                showToast(errorResponse);
+                                window.location = "/Login.html";
+                            });
+                        }
+                        else
+                            showToast("Ticket created succesfully.");
                     });
-                    console.log(response);
                 }
                 catch (e) {
                     console.log(e)

@@ -23,7 +23,11 @@
 
         $(document).ready(function () {
             $(function () {
-                $("#includedContent").load("navBar.html");
+                $("#includedContent").load("navBar.html", function () {
+                    $('#logOutActionId').click(async function () {
+                        logOutFunction()
+                    })
+                });
                 RenderAlreadyShownNumbers();
             });
 
@@ -32,7 +36,9 @@
             }
 
             async function RenderAlreadyShownNumbers() {
+                debugger;
                 let response = await fetch('/api/lottery');
+
                 responseString = await response.text();
                 if (responseString.length > 0) {
                     receivedWinningNumbers = $.map(responseString.split(','), function (num) {
@@ -46,6 +52,8 @@
                     if (receivedWinningNumbers.length == 20)
                         receivedWinningNumbers = [];
                 }
+
+                
             }
 
             clockInterval = setInterval(clock, 10);
@@ -81,6 +89,27 @@
                     receivedWinningNumbers = [];
                 }
             });
+
+
+            //$('#logOutActionId').click(async function () {
+            //    debugger;
+            //    const response = await fetch('/api/account/logout', {
+            //        method: 'POST',
+            //        headers: {
+            //            'Content-Type': 'application/json'
+            //        },
+            //    });
+
+            //    if (response.status < 400) {
+            //        $('#loginVal').hide();
+            //        window.location = "/Lottery.html";
+            //    }
+            //    else {
+            //        console.log(response.status)
+            //        $('#loginVal').show();
+            //        return;
+            //    }
+            //})
         });
     </script>
 </body>

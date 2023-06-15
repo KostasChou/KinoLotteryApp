@@ -5,64 +5,114 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <script src="Scripts/jQueryFileMin.js"></script>
 </head>
 <body>
-        <ul>
-            <li>
-                <a href="">Home</a>    
-            </li>
-            <li>
-                <a href="/Lottery.html">Lottery</a>    
-            </li>
-            <li>
-                <a href="/ChooseNumbers.html">Play Numbers</a>    
-            </li>
-            <li>
-                <a href="">Statistics</a>    
-            </li>
-            <li style="float:right ">
-                <a style="padding: 0; padding-right: 5px; padding-left: 5px; margin-right: 20px;"  href=""> <img id="accountImage" src="Images/kindpng_1114679.png" alt="" >  </a>
-            </li>
-            
-        </ul>
+    <ul class="horizontalUl">
+        <li>
+            <a href="">Home</a>
+        </li>
+        <li>
+            <a href="/Lottery.html">Lottery</a>
+        </li>
+        <li>
+            <a href="/ChooseNumbers.html">Play Numbers</a>
+        </li>
+        <li>
+            <a href="">Statistics</a>
+        </li>
+        <li class="dropdown" style="float:right">
+            <label for="dropdown-toggle" style="padding: 0; padding-right: 5px; padding-left: 5px; margin-right: 20px;">
+                <img id="accountImage" src="Images/kindpng_1114679.png" alt="">
+            </label>
+            <ul class="dropdown-menu">
+                <li><a href="#">My Winnings</a></li>
+                <li><a href="#">My Tickets</a></li>
+                <li><a href="#">Results</a></li>
+                <li><a href="#">Dropdown Item 2</a></li>
+                <li><a id="logOutActionId" href="#">Log Out</a></li>
+            </ul>
+        </li>
+
+    </ul>
+    <script src="Scripts/jQueryFileMin.js"></script>
+    <script src="Scripts/JSActions.js"></script>
 </body>
 </html>
 
-<script>
+<!--<script>
+    $(document).ready(function () {
+       
+        $('logOutActionId').click(async function () {
+            debugger;
+            const response = await fetch('/api/account/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            });
 
-</script>
+            if (response.status < 400) {
+                $('#loginVal').hide();
+                window.location = "/Lottery.html";
+            }
+            else {
+                console.log(response.status)
+                $('#loginVal').show();
+                return;
+            }
+        })
+    })
+</script>-->
 
 <style>
-body{
-    margin: 0;
-}
+    body{
+        margin: 0;
+    }
 
-ul {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  background-color: rgb(88, 88, 88);
-}
- 
-li{
-  float: left;
-}
+    .horizontalUl {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: rgb(88, 88, 88);
+    }
 
-li a{
-  display: block;
-  color: white;
-  text-align: center;
-  font-family:Verdana, Geneva, Tahoma, sans-serif ;
-  padding: 14px 16px;
-  text-decoration: none;
-}
+    .horizontalUl li {
+        float: left;
+    }
 
-/* Change the link color to #111 (black) on hover */
-li a:hover {
-  background-color: rgb(53, 53, 53);
-  border-radius: 5%;
-}
+    .horizontalUl li a {
+        display: block;
+        color: white;
+        text-align: center;
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        padding: 14px 16px;
+        text-decoration: none;
+    }
+
+    /* Change the link color to #111 (black) on hover */
+    .horizontalUl li a:hover {
+        background-color: rgb(53, 53, 53);
+        border-radius: 5%;
+    }
+
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        right: 0;
+        background-color: rgb(88, 88, 88);
+        padding: 0;
+        z-index: 1;
+        list-style-type: none;
+        white-space: nowrap;
+    }
+
+    .dropdown:hover .dropdown-menu {
+        display: grid;
+    }
+
+    .dropdown-menu li {
+        text-align: right;
+    }
 
 </style>

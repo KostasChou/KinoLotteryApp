@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KinoLotteryData.Migrations
 {
     [DbContext(typeof(KinoLotteryContext))]
-    [Migration("20230131105020_remaininglotteriesAdded")]
-    partial class remaininglotteriesAdded
+    [Migration("20230615135407_NumbersMatched_MoneyWonColumnsAdded")]
+    partial class NumbersMatched_MoneyWonColumnsAdded
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -38,11 +38,33 @@ namespace KinoLotteryData.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("WinningNumbers")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.ToTable("Lotteries");
+                });
+
+            modelBuilder.Entity("KinoLotteryData.Data.Entities.LotteryPerformance", b =>
+                {
+                    b.Property<int>("LotteryPerformanceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("NumberOfNumbers")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NumbersMatched")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("PayoutMultiplier")
+                        .HasColumnType("decimal(10, 2)");
+
+                    b.HasKey("LotteryPerformanceId");
+
+                    b.ToTable("LotteryPerformances");
                 });
 
             modelBuilder.Entity("KinoLotteryData.Data.Entities.LotteryTicket", b =>
@@ -53,6 +75,12 @@ namespace KinoLotteryData.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int>("LotteryId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("MoneyWon")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("NumbersMatched")
                         .HasColumnType("int");
 
                     b.Property<int>("TicketId")

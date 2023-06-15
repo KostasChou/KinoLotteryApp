@@ -20,5 +20,8 @@ namespace KinoLotteryData.Data.Entities
         [ForeignKey("Ticket")]
         public int TicketId { get; set; }
         public Ticket ticket { get; set; }
+
+        public int NumbersMatched { get; set; }
+        public decimal MoneyWon { get; set; }
     }
 }
