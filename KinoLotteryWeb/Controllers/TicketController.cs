@@ -25,17 +25,15 @@ namespace KinoLotteryWeb.Controllers
         public async Task<IActionResult> CreateTicket(CreateTicketDto createTicketDto)
         {
 
-            var a = User.FindFirst("id");
+            //var a = User.FindFirst("id");
             if (!User.Identity.IsAuthenticated)
                 return BadRequest("You need to log in to create a ticket.");
-            else if (a != null)
+            else if (User.FindFirst("Id") == null)
             {
-                var b = a.Value;
+                return BadRequest("Please log with a valid account in to continue.");
             }
-
-
             else if (User.FindFirst("Id").Value == null)
-                return BadRequest(new ProblemDetails() { Detail = "Please log with a valid account in to continue." });
+                return BadRequest("Please log with a valid account in to continue.");
 
 
 

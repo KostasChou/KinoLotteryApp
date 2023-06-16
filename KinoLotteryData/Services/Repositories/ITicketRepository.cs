@@ -14,7 +14,7 @@ namespace KinoLotteryData.Services.Repositories
     {
         Task<int> CreateTicketAsync(Ticket ticket);
 
-        Task<List<Ticket>> GetActiveTicketsAsync();
+        Task<List<Ticket>> GetActiveTicketsAsync(DateTime lotteryDateTime);
     }
 
     public class TicketRepository : ITicketRepository
@@ -47,12 +47,15 @@ namespace KinoLotteryData.Services.Repositories
             }
         }
 
-        public async Task<List<Ticket>> GetActiveTicketsAsync()
+        //pass the lotteryDateTime as an argument to get tickets that created 30s before the minute the lottery was created (e.g hh:04:30)
+        public async Task<List<Ticket>> GetActiveTicketsAsync(DateTime lotteryDateTime)
         {
             try
             {
                 //_logger.LogInformation($"Part 4 tickets STARTED {DateTime.Now}");
-                var activeTickets = await _context.Tickets.Where(x => x.RemainingLotteries > 0).ToListAsync();
+                //var nextInterval = now.AddHours(8 - now.Hour).AddMinutes(59 - now.Minute).AddSeconds(59 - now.Second).AddMilliseconds(999);
+                //var nextInterval = now.AddMinutes(5 - (now.Minute % 5));
+                var activeTickets = await _context.Tickets.Where(x => x.RemainingLotteries > 0 && (lotteryDateTime - x.DateTimeCreated).TotalSeconds > 29).ToListAsync();
                 foreach (var ticket in activeTickets)
                 {
                     ticket.RemainingLotteries--;

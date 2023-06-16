@@ -50,7 +50,8 @@ namespace KinoLotteryWeb
             services.AddScoped<ITicketRepository, TicketRepository>();
             services.AddScoped<ILotteryRepository, LotteryRepository>();
             services.AddScoped<ILotteryTicketRepository, LotteryTicketRepository>();
-            
+            services.AddScoped<ILotteryPerformanveRepository, LotteryPerformanveRepository>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

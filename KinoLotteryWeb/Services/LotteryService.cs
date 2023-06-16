@@ -48,15 +48,11 @@ namespace KinoLotteryWeb.Services
                     var nextInterval = now.AddMinutes(5 - (now.Minute % 5));
                     nextInterval = nextInterval.AddSeconds(-now.Second).AddMilliseconds(-now.Millisecond);
                     var waitTime = (int)(nextInterval - now).TotalMilliseconds;
-
-                    //_logger.LogInformation($"var waitTime: {waitTime}");
-
-                    //_logger.LogInformation($"BEFORE TASK DELAY AND LOTTERYMETHOD {DateTime.Now}");
-                    //_logger.LogInformation($"WAITING TIME: {waitTime}");
+                    
                     await Task.Delay(waitTime, stoppingToken);
                     await LotteryMethod(stoppingToken);
 
-                    //_logger.LogInformation($"AFTER TASK DELAY AND LOTTERYMETHOD {DateTime.Now}");
+                    
 
 
                     //the last lottery of the day at 23:55
@@ -77,10 +73,11 @@ namespace KinoLotteryWeb.Services
 
             //Second part: Store the newly created lottery in the database and do not leave the loop until we get the Id of the newly added lottery entity
             int newLotteryId = 0;
+            Lottery newLottery = new Lottery();
             do
             {
                 var lotteryRepository = scope.ServiceProvider.GetRequiredService<ILotteryRepository>();
-                var newLottery = await lotteryRepository.CreateLotteryAsync(new Lottery
+                newLottery = await lotteryRepository.CreateLotteryAsync(new Lottery
                 {
                     LotteryDateTime = DateTime.Now,
                     WinningNumbers = String.Join(',', winningNumbers),
@@ -89,15 +86,15 @@ namespace KinoLotteryWeb.Services
             } while (newLotteryId == 0);
 
             //Third part: call the method that gets the winning numbers (and create all the temporary ones) and sends them to the front-end
-            SendLotteryToFrontService(scope, newLotteryId, stoppingToken);
+            SendLotteryToFrontService(scope, newLottery.WinningNumbers, stoppingToken);
 
             //Fourth part: Get all tickets with remaining lotteries and 
             var ticketRepository = scope.ServiceProvider.GetRequiredService<ITicketRepository>();
-            List<Ticket> activeTickets = await ticketRepository.GetActiveTicketsAsync();
+            List<Ticket> activeTickets = await ticketRepository.GetActiveTicketsAsync(newLottery.LotteryDateTime);
 
             //Fifth part: Find the tickets who won and how much
 
-            FindWinningTickets(scope, newLotteryId, activeTickets);
+            FindWinningTickets(scope, newLottery, activeTickets);
 
             //Sixth part: create and store the middle many to many entities (lotteryTicket) to the Databse
             var lotteryTicketRepository = scope.ServiceProvider.GetRequiredService<ILotteryTicketRepository>();
@@ -105,7 +102,6 @@ namespace KinoLotteryWeb.Services
 
 
 
-            //_logger.LogInformation($"Part 5 lottery METHOD ENDED {DateTime.Now}");
         }
 
         private int[] RandomNumberGenerator(int seed)
@@ -149,11 +145,9 @@ namespace KinoLotteryWeb.Services
             }
         }
 
-        private async void SendLotteryToFrontService(IServiceScope scope, int lotteryId, CancellationToken stoppingToken)
+        private async void SendLotteryToFrontService(IServiceScope scope, string winningNumbersString, CancellationToken stoppingToken)
         {
             numbersShownToUI = new List<int>();
-            ILotteryRepository lotteryRepository = scope.ServiceProvider.GetRequiredService<ILotteryRepository>();
-            string winningNumbersString = lotteryRepository.GetLotteryNumbersById(lotteryId);
             var lotteryHub = scope.ServiceProvider.GetRequiredService<IHubContext<LotteryHub>>();
             int[] allLotteryNumbers = GetAllLotteryNumbers(winningNumbersString);
 
@@ -209,11 +203,9 @@ namespace KinoLotteryWeb.Services
             return allLotteryNumbers;
         }
 
-        private List<LotteryTicket> FindWinningTickets(IServiceScope scope, int lotteryId, List<Ticket> tickets)
+        private List<LotteryTicket> FindWinningTickets(IServiceScope scope, Lottery lottery, List<Ticket> tickets)
         {
-            ILotteryRepository lotteryRepository = scope.ServiceProvider.GetRequiredService<ILotteryRepository>();
-            string winningNumbersString = lotteryRepository.GetLotteryNumbersById(lotteryId);
-            int[] winningNumbers = winningNumbersString.Split(',').Select(int.Parse).ToArray();
+            int[] winningNumbers = lottery.WinningNumbers.Split(',').Select(int.Parse).ToArray();
             List<LotteryTicket> lotteryTickets = new List<LotteryTicket>();
 
             for(int i = 0; i < tickets.Count; i++)
@@ -234,7 +226,7 @@ namespace KinoLotteryWeb.Services
 
                 lotteryTickets.Add(new LotteryTicket()
                 {
-                    LotteryId = lotteryId,
+                    LotteryId = lottery.Id,
                     TicketId = tickets[i].Id,
                     NumbersMatched = numbersMatched,
                     MoneyWon = Convert.ToDecimal(performanceForSpecificTicket
