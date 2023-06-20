@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In</title>
+    <link rel="stylesheet" href="GenericCss/GenericCss.css">
+    <script src="Scripts/jQueryFileMin.js"></script>
+    <script src="Scripts/JSActions.js"></script>
+</head>
+<body>
+    <div id="includedContent"></div>
+    <div class="cssMainContainer">
+        <h4>GEIAAAAA</h4>
+    </div>
+</body>
+</html>
+
+<script>
+    $(document).ready(function () {
+        $(function () {
+            $("#includedContent").load("navBar.html", function () {
+                $('#logOutActionId').click(async function () {
+                    logOutFunction()
+                })
+            });
+        });
+    });
+</script>
+
+<style>
+
+
+</style>

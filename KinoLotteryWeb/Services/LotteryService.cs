@@ -52,9 +52,6 @@ namespace KinoLotteryWeb.Services
                     await Task.Delay(waitTime, stoppingToken);
                     await LotteryMethod(stoppingToken);
 
-                    
-
-
                     //the last lottery of the day at 23:55
                     if(DateTime.Now.TimeOfDay > new TimeSpan(23, 55, 00))
                         await Task.Delay(TimeSpan.FromHours(9), stoppingToken);
@@ -65,7 +62,6 @@ namespace KinoLotteryWeb.Services
 
         private async Task LotteryMethod(CancellationToken stoppingToken)
         {
-            
             using IServiceScope scope = _serviceProvider.CreateScope();
             //First part: Request a true random nambor from an api and seed to to Random Class to create the random winning numbers.
             var randomNumberSeed = await GetTrueRandomSeedNumber();
@@ -74,9 +70,11 @@ namespace KinoLotteryWeb.Services
             //Second part: Store the newly created lottery in the database and do not leave the loop until we get the Id of the newly added lottery entity
             int newLotteryId = 0;
             Lottery newLottery = new Lottery();
+            var lotteryRepository = scope.ServiceProvider.GetRequiredService<ILotteryRepository>();
+
             do
             {
-                var lotteryRepository = scope.ServiceProvider.GetRequiredService<ILotteryRepository>();
+                
                 newLottery = await lotteryRepository.CreateLotteryAsync(new Lottery
                 {
                     LotteryDateTime = DateTime.Now,
@@ -85,44 +83,37 @@ namespace KinoLotteryWeb.Services
                 newLotteryId = newLottery.Id;
             } while (newLotteryId == 0);
 
-            //Third part: call the method that gets the winning numbers (and create all the temporary ones) and sends them to the front-end
-            SendLotteryToFrontService(scope, newLottery.WinningNumbers, stoppingToken);
+            //Third part: call the method that sends the winning numbers to the front-end with Signul-R
+            Task.Run(() => SendLotteryToFrontService(scope, newLottery.WinningNumbers, stoppingToken));
 
             //Fourth part: Get all tickets with remaining lotteries and 
             var ticketRepository = scope.ServiceProvider.GetRequiredService<ITicketRepository>();
             List<Ticket> activeTickets = await ticketRepository.GetActiveTicketsAsync(newLottery.LotteryDateTime);
 
-            //Fifth part: Find the tickets who won and how much
 
-            FindWinningTickets(scope, newLottery, activeTickets);
+            decimal moneyPlayed, moneyWon = 0;
+            moneyPlayed = activeTickets.Select(t => t.MoneyPlayedPerLottery).Sum();
+
+            //Fifth part: Find the tickets that won ,how much, and create the lottery tickets to store
+            var performanceRepository = scope.ServiceProvider.GetRequiredService<ILotteryPerformanveRepository>();
+            _performances = performanceRepository.GetLotteryPerformance();
+
+            _logger.LogInformation($"Just before FindWinningTickets{DateTime.Now}");
+            
+            List<LotteryTicket> lotteryTicketsToStore = FindWinningTickets(scope, newLottery, activeTickets, ref moneyWon);
+
+            _logger.LogInformation($"Just after FindWinningTickets{DateTime.Now}");
 
             //Sixth part: create and store the middle many to many entities (lotteryTicket) to the Databse
             var lotteryTicketRepository = scope.ServiceProvider.GetRequiredService<ILotteryTicketRepository>();
-            await lotteryTicketRepository.CreateLotteryTicketAsync(activeTickets.Select(x => x.Id).ToList(), newLotteryId);
+            await lotteryTicketRepository.CreateLotteryTicketAsync(lotteryTicketsToStore);
 
+            //Seventh part: store the info about money played and won in the lottery 
+            newLottery.MoneyPlayed = moneyPlayed;
+            newLottery.MoneyWon = moneyWon;
 
-
+            lotteryRepository.UpdateLotteryWithMoneyPlayerandWon(newLottery);
         }
-
-        private int[] RandomNumberGenerator(int seed)
-        {
-            int[] randomNumbers = new int[20];
-            for (int i = 0; i < randomNumbers.Length; i++)
-            {
-                Random rnd = new Random(seed);
-                var x = rnd.Next(1, 81);
-                do
-                {
-                    x = rnd.Next(1, 81);
-                } while (randomNumbers.Contains(x));
-                randomNumbers[i] = x;
-            }
-
-            //_logger.LogInformation($"Part 1 random numBer FINISHED {DateTime.Now.Second} + {DateTime.Now.Millisecond}");
-
-            return randomNumbers;
-        }
-
         private async Task<int> GetTrueRandomSeedNumber()
         {
             try
@@ -145,7 +136,24 @@ namespace KinoLotteryWeb.Services
             }
         }
 
-        private async void SendLotteryToFrontService(IServiceScope scope, string winningNumbersString, CancellationToken stoppingToken)
+        private int[] RandomNumberGenerator(int seed)
+        {
+            int[] randomNumbers = new int[20];
+            Random rnd = new Random(seed);
+            for (int i = 0; i < randomNumbers.Length; i++)
+            {   
+                var x = rnd.Next(1, 81);
+                do
+                {
+                    x = rnd.Next(1, 81);
+                } while (randomNumbers.Contains(x));
+                randomNumbers[i] = x;
+            }
+
+            return randomNumbers;
+        }
+
+        private async Task SendLotteryToFrontService(IServiceScope scope, string winningNumbersString, CancellationToken stoppingToken)
         {
             numbersShownToUI = new List<int>();
             var lotteryHub = scope.ServiceProvider.GetRequiredService<IHubContext<LotteryHub>>();
@@ -163,7 +171,7 @@ namespace KinoLotteryWeb.Services
                     await lotteryHub.Clients.All.SendAsync("ReceiveLotteryNumbers", new { Number = allLotteryNumbers[i - 1], IsWinningNumber = false });
                 }
 
-                await Task.Delay(850, stoppingToken);
+                await Task.Delay(850, stoppingToken).ConfigureAwait(false); ;
             }
 
             //_logger.LogInformation($"Part 3 lottery sent to front FINISHED {DateTime.Now.Second} + {DateTime.Now.Millisecond}");
@@ -203,36 +211,38 @@ namespace KinoLotteryWeb.Services
             return allLotteryNumbers;
         }
 
-        private List<LotteryTicket> FindWinningTickets(IServiceScope scope, Lottery lottery, List<Ticket> tickets)
+        private List<LotteryTicket> FindWinningTickets(IServiceScope scope, Lottery lottery, List<Ticket> tickets, ref decimal moneyWon)
         {
             int[] winningNumbers = lottery.WinningNumbers.Split(',').Select(int.Parse).ToArray();
             List<LotteryTicket> lotteryTickets = new List<LotteryTicket>();
 
             for(int i = 0; i < tickets.Count; i++)
             {
+                _logger.LogInformation($"{i} Ticket entered loop{DateTime.Now}");
                 int numbersMatched = 0;
 
-                LotteryPerformance[] performanceForSpecificTicket = _performances.Where(p => p.NumberOfNumbers == tickets[i].NumberOfNumbers).ToArray();
-
+                int[] ticketNumbers = tickets[i].NumbersPlayed.Split(',').Select(int.Parse).ToArray();
                 for (int j = 0; j < tickets[i].NumberOfNumbers; j++)
                 {
-                    int[] ticketNumbers = tickets[i].NumbersPlayed.Split(',').Select(int.Parse).ToArray();
-
                     if (winningNumbers.Contains(ticketNumbers[j]))
                     {
                         numbersMatched++;
                     }
                 }
 
+                decimal ticketMultiplier = _performances.Where(p => p.NumberOfNumbers == tickets[i].NumberOfNumbers && p.NumbersMatched == numbersMatched).Select(p => p.PayoutMultiplier).First();
+
+
                 lotteryTickets.Add(new LotteryTicket()
                 {
                     LotteryId = lottery.Id,
                     TicketId = tickets[i].Id,
                     NumbersMatched = numbersMatched,
-                    MoneyWon = Convert.ToDecimal(performanceForSpecificTicket
-                                                            .Where(p => p.NumberOfNumbers == tickets[i].NumberOfNumbers && p.NumbersMatched == numbersMatched)
-                                                            .Select(p => p.PayoutMultiplier * tickets[i].MoneyPlayedPerLottery))
-                });
+                    MoneyWon = tickets[i].MoneyPlayedPerLottery * ticketMultiplier
+            });
+
+                moneyWon += lotteryTickets[i].MoneyWon;
+                _logger.LogInformation($"{i} Ticket leaving loop {DateTime.Now}");
             }
 
             return lotteryTickets;

@@ -11,7 +11,7 @@ namespace KinoLotteryData.Services.Repositories
     
     public interface ILotteryTicketRepository
     {
-        public Task CreateLotteryTicketAsync(List<int> activeTicketIds, int newLotteryId);
+        public Task CreateLotteryTicketAsync(List<LotteryTicket> lotteryTickets);
     }
 
     public class LotteryTicketRepository : ILotteryTicketRepository
@@ -23,17 +23,10 @@ namespace KinoLotteryData.Services.Repositories
             _context = context;
             _logger = logger;
         }
-        public async Task CreateLotteryTicketAsync(List<int> activeTicketIds, int newLotteryId)
+        public async Task CreateLotteryTicketAsync(List<LotteryTicket> lotteryTickets)
         {
             try
             {
-                LotteryTicket[] lotteryTickets = new LotteryTicket[activeTicketIds.Count];
-                for (var i = 0; i < lotteryTickets.Length; i++)
-                {
-                    lotteryTickets[i] = new LotteryTicket { LotteryId = newLotteryId, TicketId = activeTicketIds[i] };
-                }
-
-
                 await _context.LotteryTickets.AddRangeAsync(lotteryTickets);
 
                 await _context.SaveChangesAsync();

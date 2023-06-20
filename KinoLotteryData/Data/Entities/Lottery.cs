@@ -13,8 +13,8 @@ namespace KinoLotteryData.Data.Entities
         public DateTime LotteryDateTime { get; set; }
         [Required]
         public string WinningNumbers { get; set; }
-        public int MoneyPlayed { get; set; }
-        public int MoneyWon { get; set; }
+        public decimal MoneyPlayed { get; set; }
+        public decimal MoneyWon { get; set; }
         public ICollection<LotteryTicket> LotteryTickets { get; set; }
 
 

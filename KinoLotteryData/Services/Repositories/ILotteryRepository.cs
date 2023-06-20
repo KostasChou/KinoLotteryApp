@@ -13,7 +13,7 @@ namespace KinoLotteryData.Services.Repositories
     public interface ILotteryRepository
     {
         Task<Lottery> CreateLotteryAsync(Lottery lottery);
-        string GetLotteryNumbersById(int lotteryId);
+        void UpdateLotteryWithMoneyPlayerandWon(Lottery lottery);
     }
 
     public class LotteryRepository : ILotteryRepository
@@ -33,9 +33,7 @@ namespace KinoLotteryData.Services.Repositories
             {
                 var a = await _context.Lotteries.AddAsync(lottery);
                 await _context.SaveChangesAsync();
-                //_logger.LogInformation("Lottery created successfully.");
-
-                //_logger.LogInformation($"Part 2 lottery created FINISHED {DateTime.Now.Second} + {DateTime.Now.Millisecond}");
+                
                 return a.Entity;
             }
             catch(Exception ex)
@@ -44,10 +42,21 @@ namespace KinoLotteryData.Services.Repositories
                 throw new Exception(ex.Message);
             }
         }
-        public string GetLotteryNumbersById(int lotteryId)
+        public void UpdateLotteryWithMoneyPlayerandWon(Lottery lottery)
         {
-            return _context.Lotteries.Where(x => x.Id == lotteryId).Select(x => x.WinningNumbers).FirstOrDefault();
-                
+            if (lottery == null)
+                throw new ArgumentNullException(nameof(lottery));
+
+            try
+            {
+                _context.Entry(lottery).State = EntityState.Modified;
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message.ToString());
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

@@ -52,18 +52,16 @@ namespace KinoLotteryData.Services.Repositories
         {
             try
             {
-                //_logger.LogInformation($"Part 4 tickets STARTED {DateTime.Now}");
-                //var nextInterval = now.AddHours(8 - now.Hour).AddMinutes(59 - now.Minute).AddSeconds(59 - now.Second).AddMilliseconds(999);
-                //var nextInterval = now.AddMinutes(5 - (now.Minute % 5));
-                var activeTickets = await _context.Tickets.Where(x => x.RemainingLotteries > 0 && (lotteryDateTime - x.DateTimeCreated).TotalSeconds > 29).ToListAsync();
+
+                var timeThreshold = lotteryDateTime.AddSeconds(-29);
+                var activeTickets = await _context.Tickets
+                    .Where(t => t.RemainingLotteries > 0 && t.DateTimeCreated < timeThreshold)
+                    .ToListAsync();
                 foreach (var ticket in activeTickets)
                 {
                     ticket.RemainingLotteries--;
                 }
                 await _context.SaveChangesAsync();
-
-                //_logger.LogInformation("active tickets retrieved successfully");
-
                 return activeTickets;
             }
             catch (Exception ex)
