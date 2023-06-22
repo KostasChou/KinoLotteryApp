@@ -16,6 +16,24 @@
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
+.myTicketParentContainer {
+    background-color: beige;
+    width: 800px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: auto;
+    /*height: 1000px;*/
+    text-align: center;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+#ticketShownContainer {
+    margin: 30px;
+    text-align: left;
+    width: fit-content;
+}
+
 .toast {
     position: relative;
     background-color: #333;
@@ -41,4 +59,17 @@
     width: 45px;
     height: 45px;
     font-size: 1.3em;
+}
+
+.myTicketButtons{
+    margin:5px;
+    border-radius: 45%;
+    width:40px;
+    height:40px;
+    font-size:1em;
+}
+
+.myTicketDivClass:hover {
+    background-color:ghostwhite;
+
 }

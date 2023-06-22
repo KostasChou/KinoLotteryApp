@@ -13,6 +13,7 @@ namespace KinoLotteryData.Services.Repositories
     public interface ILotteryRepository
     {
         Task<Lottery> CreateLotteryAsync(Lottery lottery);
+        //Task<List<Lottery>> GetLotteriesByIdAsync(List<int> ids);
         void UpdateLotteryWithMoneyPlayerandWon(Lottery lottery);
     }
 
@@ -58,5 +59,15 @@ namespace KinoLotteryData.Services.Repositories
                 throw new Exception(ex.Message);
             }
         }
+
+        //public async Task<List<Lottery>> GetLotteriesByIdAsync(List<int> ids)
+        //{
+        //    if(ids.Count == 0)
+        //    {
+
+        //    }
+
+        //    return await _context.Lotteries.Where(l => ids.Contains(l.Id)).ToListAsync();
+        //}
     }
 }

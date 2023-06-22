@@ -64,7 +64,7 @@ namespace KinoLotteryWeb.Services
         {
             using IServiceScope scope = _serviceProvider.CreateScope();
             //First part: Request a true random nambor from an api and seed to to Random Class to create the random winning numbers.
-            var randomNumberSeed = await GetTrueRandomSeedNumber();
+            var randomNumberSeed = await GetTrueRandomSeedNumber(scope);
             var winningNumbers = RandomNumberGenerator(randomNumberSeed);
 
             //Second part: Store the newly created lottery in the database and do not leave the loop until we get the Id of the newly added lottery entity
@@ -114,13 +114,15 @@ namespace KinoLotteryWeb.Services
 
             lotteryRepository.UpdateLotteryWithMoneyPlayerandWon(newLottery);
         }
-        private async Task<int> GetTrueRandomSeedNumber()
+        private async Task<int> GetTrueRandomSeedNumber(IServiceScope scope)
         {
             try
             {
                 using (HttpClient client = new HttpClient())
                 {
-                    string responseString = await client.GetStringAsync("https://www.random.org/integers/?num=1&min=1&max=999999999&col=1&base=10&format=plain&rnd=new");
+                    IApiUriRepository repo = scope.ServiceProvider.GetRequiredService<IApiUriRepository>();
+                    string apiUriString = repo.GetApiUriString();
+                    string responseString = await client.GetStringAsync(apiUriString);
                     string numbersString = responseString.ToString();
                     return Convert.ToInt32(numbersString);
                 }

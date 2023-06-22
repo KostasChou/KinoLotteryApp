@@ -16,7 +16,5 @@ namespace KinoLotteryData.Data.Entities
         public decimal MoneyPlayed { get; set; }
         public decimal MoneyWon { get; set; }
         public ICollection<LotteryTicket> LotteryTickets { get; set; }
-
-
     }
 }

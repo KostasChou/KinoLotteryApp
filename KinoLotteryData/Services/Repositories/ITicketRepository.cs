@@ -15,6 +15,8 @@ namespace KinoLotteryData.Services.Repositories
         Task<int> CreateTicketAsync(Ticket ticket);
 
         Task<List<Ticket>> GetActiveTicketsAsync(DateTime lotteryDateTime);
+
+        List<Ticket> GetTicketsByUserIdAsync(int userId);
     }
 
     public class TicketRepository : ITicketRepository
@@ -29,7 +31,7 @@ namespace KinoLotteryData.Services.Repositories
 
         public async Task<int> CreateTicketAsync(Ticket ticket)
         {
-            if(ticket == null)
+            if (ticket == null)
             {
                 _logger.LogInformation("ticket is null.");
                 throw new ArgumentNullException(nameof(ticket));
@@ -39,7 +41,7 @@ namespace KinoLotteryData.Services.Repositories
                 _context.Tickets.Add(ticket);
                 return await _context.SaveChangesAsync();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogInformation(ex.Message.ToString());
                 throw new Exception(ex.Message);
@@ -69,6 +71,20 @@ namespace KinoLotteryData.Services.Repositories
                 _logger.LogInformation(ex.Message.ToString());
                 return null;
             }
+        }
+
+        public List<Ticket> GetTicketsByUserIdAsync(int userId)
+        {
+            if (userId == 0)
+            {
+            }
+            
+            return  _context.Tickets.AsNoTracking()
+                                    .Where(t => t.PlayerId == userId)
+                                    .Include(t => t.LotteryTickets)
+                                    .ThenInclude(lt => lt.Lottery)
+                                    .OrderByDescending(t => t.Id)
+                                    .ToList();
         }
 
 

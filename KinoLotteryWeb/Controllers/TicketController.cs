@@ -24,7 +24,6 @@ namespace KinoLotteryWeb.Controllers
         //[Authorize]
         public async Task<IActionResult> CreateTicket(CreateTicketDto createTicketDto)
         {
-
             //var a = User.FindFirst("id");
             if (!User.Identity.IsAuthenticated)
                 return BadRequest("You need to log in to create a ticket.");
@@ -49,7 +48,7 @@ namespace KinoLotteryWeb.Controllers
             }
             catch 
             {
-                return BadRequest(new ProblemDetails() { Detail = "Please log in to continue." });
+                return BadRequest( "Please log in to continue." );
             }
             await _repo.CreateTicketAsync(ticket);
             return Ok();

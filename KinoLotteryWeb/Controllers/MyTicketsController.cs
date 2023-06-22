@@ -1,6 +1,10 @@
 ﻿using KinoLotteryData.Services.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace KinoLotteryWeb.Controllers
 {
@@ -20,10 +24,27 @@ namespace KinoLotteryWeb.Controllers
         }
 
         [HttpGet]
-        public ActionResult<string> GetAlreadyShownLotteryNumbers()
+        public ActionResult<string> GetAllTicketsForUser()
         {
+            if (!User.Identity.IsAuthenticated)
+                return BadRequest("You need to log in to create a ticket.");
+            else if (User.FindFirst("Id") == null)
+            {
+                return BadRequest("Please log with a valid account in to continue.");
+            }
+            else if (User.FindFirst("Id").Value == null)
+                return BadRequest("Please log with a valid account in to continue.");
 
-            return Ok();
+            var tickets = _ticketRepository.GetTicketsByUserIdAsync(Convert.ToInt32(User.FindFirst("Id").Value));
+
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
+                NullValueHandling = NullValueHandling.Ignore,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+
+            return Ok(JsonConvert.SerializeObject(tickets, settings));
         }
     }
 }

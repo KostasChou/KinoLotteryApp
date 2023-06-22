@@ -4,28 +4,127 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Log In</title>
+    <title>My Tickets</title>
     <link rel="stylesheet" href="GenericCss/GenericCss.css">
     <script src="Scripts/jQueryFileMin.js"></script>
     <script src="Scripts/JSActions.js"></script>
 </head>
 <body>
     <div id="includedContent"></div>
-    <div class="cssMainContainer">
-        <h4>GEIAAAAA</h4>
+    <div class="myTicketParentContainer">
+        <div id="ticketShownContainer">
+            
+        </div>
+        <button id="loadMoreTicketsId">Load Previous Tickets</button>
     </div>
 </body>
 </html>
 
+
 <script>
     $(document).ready(function () {
+
+        var allTicketLotteries = [];
+        var howManyTicketsHaveBeenShownInTotal = 0;
+        var previousTicketId = 0;
+
         $(function () {
             $("#includedContent").load("navBar.html", function () {
                 $('#logOutActionId').click(async function () {
                     logOutFunction()
                 })
+
+                bringAllTickets();
             });
         });
+
+        async function bringAllTickets() {
+
+            let response = await fetch('api/mytickets');
+
+            responseString = await response.text();
+            if (responseString.length > 0) {
+
+                let myTicketsObject = JSON.parse(responseString);
+
+                for (let i = 0; i < myTicketsObject.length; i++) {
+
+                    var numbersPlayedByUser = myTicketsObject[i].NumbersPlayed.split(',').map(function (item) { return parseInt(item); });
+                    numbersPlayedByUser.sort(function (a, b) {
+                        return a - b;
+                    });
+                    var ticketId = myTicketsObject[i].Id;
+
+                    if (myTicketsObject[i].LotteryTickets.length > 0) { //that means that the has already been played in at least on lottery
+
+                        for (let j = 0; j < myTicketsObject[i].LotteryTickets.length; j++) {
+
+                            var lotteryId = myTicketsObject[i].LotteryTickets[j].LotteryId;
+                            var lotteryDateTime = myTicketsObject[i].LotteryTickets[j].Lottery.LotteryDateTime;
+                            var lotteryWinningNumbers = myTicketsObject[i].LotteryTickets[j].Lottery.WinningNumbers.split(',').map(function (item) { return parseInt(item); });
+                            lotteryWinningNumbers.sort(function (a, b) {
+                                return a - b;
+                            });
+
+                            allTicketLotteries.push({
+                                ticketId: ticketId,
+                                numbersPlayed: numbersPlayedByUser,
+                                lotteryId: lotteryId,
+                                lotteryDateTime: lotteryDateTime,
+                                lotteryWinningNumbers: lotteryWinningNumbers
+                            });
+                        }
+                    }
+                    else {
+
+                    }
+                }
+
+                ShowTenMoreTicketsToUI();
+
+            }
+        }
+
+        $('#loadMoreTicketsId').click(function () {
+            ShowTenMoreTicketsToUI();
+        })
+
+        $('#ticketShownContainer').on('click', '.myTicketDivClass', function (e) {
+
+            var divId = parseInt(e.currentTarget.id.substring(9));
+        });
+
+        function ShowTenMoreTicketsToUI() {
+
+            var distinctTicketsLooped = 0
+            
+            for (let i = howManyTicketsHaveBeenShownInTotal; i < allTicketLotteries.length; i++) {
+
+                if (allTicketLotteries[i].ticketId != previousTicketId) {
+                    $('#ticketShownContainer').append(`<div class="myTicketDivClass" id="divTicket${i}"></div>`)
+                    for (let j = 0; j < allTicketLotteries[i].numbersPlayed.length; j++) {
+
+                        $(`#divTicket${i}`).append(`<button class="myTicketButtons" id="tBtn${i}_${j}">  ${allTicketLotteries[i].numbersPlayed[j]} </button>`);
+
+                    }
+                    $(`#divTicket${i}`).append('</br > </div> ');
+                    distinctTicketsLooped++;
+
+                    previousTicketId = allTicketLotteries[i].ticketId;
+                }
+                else {
+
+                }
+
+                if (distinctTicketsLooped == 10 || i == (allTicketLotteries.length - 1)) {
+                    howManyTicketsHaveBeenShownInTotal = i;
+                    break;
+                }
+
+
+            }
+            
+        }
     });
 </script>
 

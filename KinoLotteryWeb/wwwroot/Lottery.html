@@ -36,7 +36,6 @@
             }
 
             async function RenderAlreadyShownNumbers() {
-                debugger;
                 let response = await fetch('/api/lottery');
 
                 responseString = await response.text();
@@ -91,25 +90,6 @@
             });
 
 
-            //$('#logOutActionId').click(async function () {
-            //    debugger;
-            //    const response = await fetch('/api/account/logout', {
-            //        method: 'POST',
-            //        headers: {
-            //            'Content-Type': 'application/json'
-            //        },
-            //    });
-
-            //    if (response.status < 400) {
-            //        $('#loginVal').hide();
-            //        window.location = "/Lottery.html";
-            //    }
-            //    else {
-            //        console.log(response.status)
-            //        $('#loginVal').show();
-            //        return;
-            //    }
-            //})
         });
     </script>
 </body>

@@ -32,7 +32,7 @@ namespace KinoLotteryWeb
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<KinoLotteryContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("HomeConnectionString")));
+                options.UseSqlServer(Configuration.GetConnectionString("WorkConnectionString")));
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options => {
                 options.LoginPath = "/Login.html";
@@ -51,6 +51,7 @@ namespace KinoLotteryWeb
             services.AddScoped<ILotteryRepository, LotteryRepository>();
             services.AddScoped<ILotteryTicketRepository, LotteryTicketRepository>();
             services.AddScoped<ILotteryPerformanveRepository, LotteryPerformanveRepository>();
+            services.AddScoped<IApiUriRepository, ApiUriRepository>();
 
         }
 
