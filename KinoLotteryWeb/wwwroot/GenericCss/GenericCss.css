@@ -69,7 +69,33 @@
     font-size:1em;
 }
 
+.myTicketDivClass {
+    cursor: pointer;
+    outline: none;
+    display: flex;
+    align-items: center;
+}
+
 .myTicketDivClass:hover {
     background-color:ghostwhite;
+}
 
+.myTicketDivClass::after {
+    content: '\002B';
+    color: #777;
+    font-weight: bold;
+    margin-left:auto;
+    padding:10px;
+}
+
+.activeLotteryTicketULClass::after {
+    content: "\2212";
+}
+
+.ticketLotteryPanel {
+    padding: 0 18px;
+    background-color: white;
+    max-height: fit-content !important;
+    overflow: hidden;
+    
 }

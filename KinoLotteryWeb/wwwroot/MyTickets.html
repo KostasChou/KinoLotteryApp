@@ -60,17 +60,34 @@
                         for (let j = 0; j < myTicketsObject[i].LotteryTickets.length; j++) {
 
                             var lotteryId = myTicketsObject[i].LotteryTickets[j].LotteryId;
-                            var lotteryDateTime = myTicketsObject[i].LotteryTickets[j].Lottery.LotteryDateTime;
+                            var lotteryDateTimeString = myTicketsObject[i].LotteryTickets[j].Lottery.LotteryDateTime;
                             var lotteryWinningNumbers = myTicketsObject[i].LotteryTickets[j].Lottery.WinningNumbers.split(',').map(function (item) { return parseInt(item); });
                             lotteryWinningNumbers.sort(function (a, b) {
                                 return a - b;
                             });
 
+                            var date = new Date(lotteryDateTimeString);
+
+                            var formattedDate = date.toLocaleDateString('en-GB', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: '2-digit'
+                            });
+
+                            var formattedTime = date.toLocaleTimeString('en-US', {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
+
+                            var finalLotteryDate = formattedDate + ', ' + formattedTime;
+
                             allTicketLotteries.push({
                                 ticketId: ticketId,
                                 numbersPlayed: numbersPlayedByUser,
+                                numbersMatched: myTicketsObject[i].LotteryTickets[j].NumbersMatched,
+                                moneyWon: myTicketsObject[i].LotteryTickets[j].MoneyWon,
                                 lotteryId: lotteryId,
-                                lotteryDateTime: lotteryDateTime,
+                                lotteryDateTime: finalLotteryDate,
                                 lotteryWinningNumbers: lotteryWinningNumbers
                             });
                         }
@@ -91,7 +108,32 @@
 
         $('#ticketShownContainer').on('click', '.myTicketDivClass', function (e) {
 
-            var divId = parseInt(e.currentTarget.id.substring(9));
+            $('.lotteryTicketUL').remove();
+
+            if (!this.classList.contains('activeLotteryTicketULClass')) {
+                $('.myTicketDivClass').removeClass('activeLotteryTicketULClass');
+
+            }
+
+            this.classList.toggle("activeLotteryTicketULClass");
+
+            if (this.classList.contains('activeLotteryTicketULClass')) {
+                var clickedTicketId = parseInt(e.currentTarget.id.substring(9));
+
+                var ticketsById = allTicketLotteries.filter(function (item) { return item.ticketId === clickedTicketId });
+
+                $(`#ticketLotteryPanel${clickedTicketId}`).append(`<ul class="lotteryTicketUL" id="lotteryTicketUl${clickedTicketId}"></ul>`)
+
+                for (let i = 0; i < ticketsById.length; i++) {
+                    $(`#lotteryTicketUl${clickedTicketId}`).append(`<li class="lotteryTicketLI" id="lotteryTicketLI${clickedTicketId}_${ticketsById[i].lotteryId}"> Lottery: ${ticketsById[i].lotteryId}, &nbsp; Lottery Date: ${ticketsById[i].lotteryDateTime}  &nbsp; Numbers Matched: ${ticketsById[i].numbersMatched}, &nbsp; Money Won: ${ticketsById[i].moneyWon} <button class="lotteryTicketDetails">Details</button></li>`);
+                }
+            }
+
+        });
+
+        //edw eixa meinei, den mpainei katholou mesa
+        $('#ticketShownContainer').on('click', 'lotteryTicketDetails', function (e) {
+            console.log('gamithikes');
         });
 
         function ShowTenMoreTicketsToUI() {
@@ -101,13 +143,13 @@
             for (let i = howManyTicketsHaveBeenShownInTotal; i < allTicketLotteries.length; i++) {
 
                 if (allTicketLotteries[i].ticketId != previousTicketId) {
-                    $('#ticketShownContainer').append(`<div class="myTicketDivClass" id="divTicket${i}"></div>`)
+                    $('#ticketShownContainer').append(`<div class="myTicketDivClass" id="divTicket${allTicketLotteries[i].ticketId}"></div> <div class="ticketLotteryPanel" id="ticketLotteryPanel${allTicketLotteries[i].ticketId}"></div>`)
                     for (let j = 0; j < allTicketLotteries[i].numbersPlayed.length; j++) {
 
-                        $(`#divTicket${i}`).append(`<button class="myTicketButtons" id="tBtn${i}_${j}">  ${allTicketLotteries[i].numbersPlayed[j]} </button>`);
+                        $(`#divTicket${allTicketLotteries[i].ticketId}`).append(`<button class="myTicketButtons" id="tBtn${i}_${j}">  ${allTicketLotteries[i].numbersPlayed[j]} </button>`);
 
                     }
-                    $(`#divTicket${i}`).append('</br > </div> ');
+                    $(`#divTicket${allTicketLotteries[i].ticketId}`).append(' </br >');
                     distinctTicketsLooped++;
 
                     previousTicketId = allTicketLotteries[i].ticketId;
