@@ -13,9 +13,18 @@
     <div id="includedContent"></div>
     <div class="myTicketParentContainer">
         <div id="ticketShownContainer">
-            
+
         </div>
         <button id="loadMoreTicketsId">Load Previous Tickets</button>
+    </div>
+
+    <div id="modalContainer">
+        <div class="modalContent">
+            <h1>Modal Heading</h1>
+            <button class="closeModalButton">×</button>
+            <p>This is a colored dot: <span class="dot"></span></p>
+            
+        </div>
     </div>
 </body>
 </html>
@@ -131,9 +140,38 @@
 
         });
 
-        //edw eixa meinei, den mpainei katholou mesa
-        $('#ticketShownContainer').on('click', 'lotteryTicketDetails', function (e) {
-            console.log('gamithikes');
+        $('#ticketShownContainer').on('click', '.lotteryTicketDetails', function (e) {
+
+            var ticket_lottery_ids = this.parentElement.id.substring(15).split('_');
+            var lotteryTicketClicked = allTicketLotteries.filter(function (item) { return item.ticketId == ticket_lottery_ids[0] && item.lotteryId == ticket_lottery_ids[1] })
+
+            var modalContent = $('<div class="modalContent"><h1>Modal Heading</h1><button class="closeModalButton">×</button></div>');
+            var modalContainer = $('#modalContainer');
+
+            // Add the modal content to the container
+            modalContainer.empty().append(modalContent);
+
+            for (var i = 1; i <= 80; i++) {     //function that creates all the numbers of the UI
+                $('.modalContent').append(`<button class="numButtons cssMyTicketButtons" id="myTicketbtn${i}">  ${i} </button>`)
+                if (lotteryTicketClicked[0].lotteryWinningNumbers.includes(i) && lotteryTicketClicked[0].numbersPlayed.includes(i)) {
+                    $(`#myTicketbtn${i}`).addClass('myTicketLotteryTicketBtn');
+                }
+                else if (lotteryTicketClicked[0].lotteryWinningNumbers.includes(i)) {
+                    $(`#myTicketbtn${i}`).addClass('myTicketLotteryBtn');
+                }
+                else if (lotteryTicketClicked[0].numbersPlayed.includes(i)) {
+                    $(`#myTicketbtn${i}`).addClass('myTicketTicketBtn');
+                }
+            }
+            // Show the modal
+            modalContainer.show();
+
+            
+        });
+
+        $('#modalContainer').on('click', '.closeModalButton', function () {
+            // Close the modal
+            $('#modalContainer').hide();
         });
 
         function ShowTenMoreTicketsToUI() {
