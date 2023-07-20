@@ -4,6 +4,11 @@
     font-size:small;
 }
 
+.winningNumber {
+    background-color: rgb(0, 4, 255);
+    color: white;
+}
+
 .cssMainContainer {
     background-color: beige;
     width: 500px;
@@ -31,7 +36,6 @@
 #ticketShownContainer {
     margin: 30px;
     text-align: left;
-    width: fit-content;
 }
 
 .toast {
@@ -55,7 +59,7 @@
 
 .cssButtons {
     margin: 2px;
-    border-radius: 45%;
+    border-radius: 50%;
     width: 45px;
     height: 45px;
     font-size: 1.3em;
@@ -63,7 +67,7 @@
 
 .myTicketButtons{
     margin:5px;
-    border-radius: 45%;
+    border-radius: 50%;
     width:40px;
     height:40px;
     font-size:1em;
@@ -140,29 +144,23 @@
     cursor: pointer;
 }
 
-.myTicketLotteryBtn {
-    box-shadow: 0px 0px 0 5px red;
-}
-
 .myTicketTicketBtn {
-    box-shadow: 0px 0px 0 5px blue;
+    box-shadow: 0px 0px 0 5px violet;
 }
 
-.myTicketLotteryTicketBtn {
-    box-shadow: 0px 0px 0 5px purple;
-}
 
 .cssMyTicketButtons {
     margin: 6px;
-    border-radius: 45%;
+    border-radius: 50%;
     width: 40px;
     height: 40px;
-    font-size: 1em;
+    font-size: 1.3em;
 }
+
 .dot {
     display: inline-block;
     width: 1em;
     height: 1em;
     border-radius: 50%;
-    background-color: red; /* Replace with your desired color */
+    background-color: red; 
 }

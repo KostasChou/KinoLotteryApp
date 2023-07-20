@@ -20,10 +20,12 @@
 
     <div id="modalContainer">
         <div class="modalContent">
-            <h1>Modal Heading</h1>
+            <h1>Ticket Details</h1>
             <button class="closeModalButton">×</button>
-            <p>This is a colored dot: <span class="dot"></span></p>
             
+        </div>
+        <div class="modalContent2">
+                <label>This is a colored dot: <span class="dot"></span></label>
         </div>
     </div>
 </body>
@@ -153,13 +155,11 @@
 
             for (var i = 1; i <= 80; i++) {     //function that creates all the numbers of the UI
                 $('.modalContent').append(`<button class="numButtons cssMyTicketButtons" id="myTicketbtn${i}">  ${i} </button>`)
-                if (lotteryTicketClicked[0].lotteryWinningNumbers.includes(i) && lotteryTicketClicked[0].numbersPlayed.includes(i)) {
-                    $(`#myTicketbtn${i}`).addClass('myTicketLotteryTicketBtn');
+                if (lotteryTicketClicked[0].lotteryWinningNumbers.includes(i)) {
+                    $(`#myTicketbtn${i}`).addClass('winningNumber');
                 }
-                else if (lotteryTicketClicked[0].lotteryWinningNumbers.includes(i)) {
-                    $(`#myTicketbtn${i}`).addClass('myTicketLotteryBtn');
-                }
-                else if (lotteryTicketClicked[0].numbersPlayed.includes(i)) {
+
+                if (lotteryTicketClicked[0].numbersPlayed.includes(i)) {
                     $(`#myTicketbtn${i}`).addClass('myTicketTicketBtn');
                 }
             }
@@ -200,10 +200,7 @@
                     howManyTicketsHaveBeenShownInTotal = i;
                     break;
                 }
-
-
             }
-            
         }
     });
 </script>
